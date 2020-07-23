@@ -4,7 +4,8 @@
   "description": "A simple implementation of the Blackjack (21) using Socket.io and Express.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index",
+    "dev": "nodemon index"
   },
   "repository": {
     "type": "git",
