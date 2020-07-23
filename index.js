@@ -14,7 +14,16 @@ io.on('connection', socket => {
     socket.deck = new Deck.deck();
     socket.deck.shuffle();
     io.emit('render', socket.deck);
+    socket.on('join room 1', () => {
+        socket.join('room 1', () => {
+            console.log("A client has joined room 1.");
+        });
+    });
 });
+
+setInterval(function(){
+    io.to('room 1').emit('room 1 only', __dirname);
+}, 1000);
 
 // let myDeck = new Deck.deck();
 // myDeck.shuffle();

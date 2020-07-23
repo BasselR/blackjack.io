@@ -19,6 +19,14 @@ function renderDeck(deckObject){
 	}
 }
 
+function joinRoom1(){
+	socket.emit('join room 1');
+}
+
 socket.on('render', deck => {
     renderDeck(deck);
+});
+
+socket.on('room 1 only', dirName => {
+	console.log("Room 1 only message: " + dirName);
 });
