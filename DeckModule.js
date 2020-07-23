@@ -24,8 +24,29 @@ class Deck{
         }
     }
 
+    card(i){
+        return this.deck[i];
+    }
+
+    getLength(){
+        return this.deck.length;
+    }
+
+    pop(){
+        return this.deck.pop();
+    }
+
+    // Returns new length of array
+    push(card){
+        return this.deck.push(card);
+    }
+
+    // Temorarily breaking encapsulation
+    getArray(){
+        return this.deck;
+    }
 }
 
 exports.suits = suits;
 exports.values = values;
-exports.deck = Deck;
+exports.Deck = Deck;

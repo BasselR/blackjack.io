@@ -3,31 +3,33 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const path = require('path');
-const Deck = require('./Deck');
+const DeckModule = require('./DeckModule');
+const Deck = DeckModule.Deck;
 
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', socket => {
-    //console.log(socket);
-    socket.deck = new Deck.deck();
-    socket.deck.shuffle();
-    io.emit('render', socket.deck);
-    socket.on('join room 1', () => {
-        socket.join('room 1', () => {
-            console.log("A client has joined room 1.");
-        });
-    });
-});
+gameDeck = new Deck();
+gameDeck.shuffle();
+console.log(gameDeck);
 
-setInterval(function(){
-    io.to('room 1').emit('room 1 only', __dirname);
-}, 1000);
+// io.on('connection', socket => {
+//     //console.log(socket);
+//     socket.deck = new Deck.deck();
+//     socket.deck.shuffle();
+//     io.emit('render', socket.deck);
+//     socket.on('join room 1', () => {
+//         socket.join('room 1', () => {
+//             socket.emit('personal');
+//             console.log("A client has joined room 1.");
+//         });
+//     });
+// });
 
-// let myDeck = new Deck.deck();
-// myDeck.shuffle();
-//console.log(myDeck);
+// setInterval(function(){
+//     io.to('room 1').emit('room 1 only', __dirname);
+// }, 1000);
 
 server.listen(PORT, () => {
     console.log("Listening on port %d", PORT);
