@@ -5,20 +5,20 @@ console.log("beans");
 function renderDeck(deck){
 	let deckDiv = document.getElementById('deck');
 	console.log(deck);
-	// for(var i = 0; i < deck.deck.length; i++){
-    //     console.log("Good morning !>>?");
-	// 	let card = document.createElement("div");
-	// 	let spanRank = document.createElement("span");
-	// 	spanRank.innerHTML = deck.card[i].Value;
-	// 	spanRank.className = "rank";
-	// 	let spanSuit = document.createElement("span");
-	// 	spanSuit.innerHTML = deck.card[i].Suit === "diamonds" ? '&diams;' : '&' + deck.card[i].Suit + ';';
-	// 	spanSuit.className = "suit";
-	// 	card.appendChild(spanRank);
-	// 	card.appendChild(spanSuit);
-    //     card.className = deck.card[i].Suit === "diamonds" ? `card rank-${deck.card[i].Value} diams` : `card rank-${deck.card[i].Value} ${deck.card[i].Suit}`;
-	//     deckDiv.appendChild(card);
-	// }
+	for(var i = 0; i < deck.deck.length; i++){
+        console.log("Good morning !>>?");
+		let card = document.createElement("div");
+		let spanRank = document.createElement("span");
+		spanRank.innerHTML = deck.card[i].Value;
+		spanRank.className = "rank";
+		let spanSuit = document.createElement("span");
+		spanSuit.innerHTML = deck.card[i].Suit === "diamonds" ? '&diams;' : '&' + deck.card[i].Suit + ';';
+		spanSuit.className = "suit";
+		card.appendChild(spanRank);
+		card.appendChild(spanSuit);
+        card.className = deck.card[i].Suit === "diamonds" ? `card rank-${deck.card[i].Value} diams` : `card rank-${deck.card[i].Value} ${deck.card[i].Suit}`;
+	    deckDiv.appendChild(card);
+	}
 }
 
 // Emitters 
@@ -26,7 +26,27 @@ function joinRoom1(){
 	socket.emit('join room 1');
 }
 
-// Receivers 
+function requestHit(){
+	socket.emit('hit');
+}
+
+// Receivers
+socket.on('hit', newCard =>{
+	console.log("Receiving 'hit' event with new card:", newCard);
+	let handDiv = document.getElementById('hand');
+	let card = document.createElement("div");
+	let spanRank = document.createElement("span");
+	spanRank.innerHTML = newCard.Value;
+	spanRank.className = "rank";
+	let spanSuit = document.createElement("span");
+	spanSuit.innerHTML = newCard.Suit === "diamonds" ? '&diams;' : '&' + newCard.Suit + ';';
+	spanSuit.className = "suit";
+	card.appendChild(spanRank);
+	card.appendChild(spanSuit);
+	card.className = newCard.Suit === "diamonds" ? `card rank-${newCard.Value} diams` : `card rank-${newCard.Value} ${newCard.Suit}`;
+	handDiv.appendChild(card);
+});
+
 socket.on('render', deck => {
     renderDeck(deck);
 });
