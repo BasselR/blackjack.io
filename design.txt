@@ -1,2 +1,12 @@
 Client will only have power to SEE their current hand (for now)
 All other information, as well as deck / hand manipulation will occur on the server
+
+
+Regarding aces:
+
+By default, aces will be "big aces" (worth 11 points).
+If a player's hit request would result in them busting, then their hand is searched for big aces.
+If a big ace is found, it is converted into a small ace (worth 1), and play continues. Otherwise, player busts.
+
+This can be done by "searching" their hand for a big ace when needed, or alternatively (more efficiently ?), by
+constantly keeping track of how many big aces a player's hand contains, and deducting from there when needed.

@@ -22,8 +22,8 @@ function renderDeck(deck){
 }
 
 // Emitters 
-function joinRoom1(){
-	socket.emit('join room 1');
+function requestRoom1(){
+	socket.emit('request room 1');
 }
 
 function requestHit(){
@@ -31,6 +31,10 @@ function requestHit(){
 }
 
 // Receivers
+socket.on('join room 1', () => {
+	console.log("You have successfully joined room 1.");
+});
+
 socket.on('hit', newCard =>{
 	console.log("Receiving 'hit' event with new card:", newCard);
 	let handDiv = document.getElementById('hand');
@@ -45,6 +49,11 @@ socket.on('hit', newCard =>{
 	card.appendChild(spanSuit);
 	card.className = newCard.Suit === "diamonds" ? `card rank-${newCard.Value} diams` : `card rank-${newCard.Value} ${newCard.Suit}`;
 	handDiv.appendChild(card);
+});
+
+socket.on('update score', newScore =>{
+	let scoreDiv = document.getElementById('scoreDiv');
+	scoreDiv.innerHTML = "New score: " + newScore;
 });
 
 socket.on('render', deck => {
