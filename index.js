@@ -46,6 +46,7 @@ io.on('connection', socket => {
                 socket.emit('join room 1');
                 if(room1Population == 2){
                     // Second player has successfully joined, start this room's game
+                    // this io.to('room 1').emit('start game') can be used to tell clients to hide initial screen
                     io.to('room 1').emit('start game');
                     initGame(room1Players);
                 }

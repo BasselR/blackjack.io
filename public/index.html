@@ -21,10 +21,12 @@
     </div> -->
     <div id="scoreDiv"></div>
     <div class="playingCards simpleCards" id="hand">
-        <div class="card back">*</div>
     </div>
     <button onclick="requestHit()">Hit</button>
     <button onclick="requestStand()">Stand</button>
+    <div class="playingCards simpleCards" id="opponentHand">
+        <div class="card back">*</div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="game.js"></script>
