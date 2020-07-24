@@ -1,0 +1,2 @@
+Client will only have power to SEE their current hand (for now)
+All other information, as well as deck / hand manipulation will occur on the server
