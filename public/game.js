@@ -30,7 +30,16 @@ function requestHit(){
 	socket.emit('hit');
 }
 
+function requestStand(){
+	socket.emit('stand');
+}
+
 // Receivers
+socket.on('game over', () => {
+	console.log("outside test success!!!");
+	document.getElementById('gameOverMsg').innerHTML = "Game over!!!";
+});
+
 socket.on('join room 1', () => {
 	console.log("You have successfully joined room 1.");
 });
@@ -43,12 +52,19 @@ socket.on('hit', newCard =>{
 	spanRank.innerHTML = newCard.Value;
 	spanRank.className = "rank";
 	let spanSuit = document.createElement("span");
-	spanSuit.innerHTML = newCard.Suit === "diamonds" ? '&diams;' : '&' + newCard.Suit + ';';
+	spanSuit.innerHTML = `&${newCard.Suit};`;
 	spanSuit.className = "suit";
 	card.appendChild(spanRank);
 	card.appendChild(spanSuit);
-	card.className = newCard.Suit === "diamonds" ? `card rank-${newCard.Value} diams` : `card rank-${newCard.Value} ${newCard.Suit}`;
+	card.className = `card rank-${newCard.Value} ${newCard.Suit}`;
 	handDiv.appendChild(card);
+});
+
+socket.on('opponent hit', () => {
+	let oppHandDiv = document.getElementById('opponentHand');
+	let card = document.createElement("div");
+	card.className = "card back";
+	oppHandDiv.appendChild(card);
 });
 
 socket.on('update score', newScore =>{

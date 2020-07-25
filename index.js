@@ -12,6 +12,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 var players = [];
 var room1Players = [];
 var gameDeck;
+var p1Turn = true;
+var p1Bool = true;
+var someoneStood = false;
 var room1Population = 0;
 //var p1 = {};
 //players.push(p1);
@@ -20,10 +23,12 @@ var room1Population = 0;
 
 setInterval(function(){
     console.log(room1Population);
-}, 1000);
+}, 3000);
 
 io.on('connection', socket => {
-    console.log(socket.id);
+    // auto assign nickname to matthew for testing
+    socket.nick = "Matthew";
+    console.log(socket.id + " joined.");
     //console.log(players);
     players.push(socket.id);
     console.log(players);
@@ -41,6 +46,8 @@ io.on('connection', socket => {
                     console.log("Duplicate room-join attempt by " + socket.id);
                 }
                 else{
+                    socket.p1 = p1Bool;
+                    p1Bool = !p1Bool;
                     room1Players.push(socket);
                 }
                 socket.emit('join room 1');
@@ -49,6 +56,9 @@ io.on('connection', socket => {
                     // this io.to('room 1').emit('start game') can be used to tell clients to hide initial screen
                     io.to('room 1').emit('start game');
                     initGame(room1Players);
+                    // room1Players.forEach((player) => {
+                    //     console.log(`Player id: ${player.id}, player num: ${player.playerNum}`);
+                    // });
                 }
             });
         }
@@ -56,19 +66,47 @@ io.on('connection', socket => {
             console.log(socket.id + " cannot join room 1 (full).");
         }
     });
-    //initGame(socket);
     // Hit
     socket.on('hit', () => {
-        hit(socket);
+        if(socket.p1 == p1Turn){
+            hit(socket);
+            if(!getOpponent(socket, room1Players).stood){
+                p1Turn = !p1Turn;
+            }
+        }
+        // else if(socket.stood){
+        //     console.log(socket.id + " tried to hit but they've already stood!");
+        // }
+        else{
+            console.log(socket.nick + " tried to hit but it's not their turn.");
+        }
+        checkGameOver(room1Players);
+    });
+    // Stand
+    socket.on('stand', () => {
+        if(socket.p1 == p1Turn){
+            socket.stood = true;
+            // someoneStood = true;
+            p1Turn = !p1Turn;
+        }
+        // else if(socket.stood){
+        //     console.log(socket.id + " tried to hit but they've already stood!");
+        // }
+        else{
+            console.log(socket.nick + " tried to stand but it's not their turn.");
+        }
+        checkGameOver(room1Players);
     });
     // Disconnect
-    socket.on('disconnect', something => {
-        console.log("disconncting...");
-        console.log(something);
+    socket.on('disconnect', discMsg => {
+        console.log(socket.id + " disconnected.");
+        // Remove the disconnected player from room 1 players and update population
+        room1Players = room1Players.filter(player => player.id == socket.id);
+        room1Population = room1Players.length;
     });
 });
 
-// Takes in an array of players (socket IDs?)
+// Takes in an array of players (sockets)
 function initGame(players){
     console.log("Init game...");
     gameDeck = new Deck();
@@ -76,10 +114,47 @@ function initGame(players){
     players.forEach((player) => {
         player.score = 0;
         player.bigAces = 0;
+        player.stood = false;
+        player.busted = false;
         // player hand might turn out to be unneccessary thanks to updating score instead
         player.hand = new Array();
         hit(player, 2);
     });
+}
+
+function getOpponent(player, socketList){
+    console.log("get opponent socketList length: " + socketList.length);
+    for(var i = 0; i < socketList.length; i++){
+        if(socketList[i].p1 === !player.p1){
+            return socketList[i];
+        }
+    }
+}
+
+function allStood(socketList){
+    for(var i = 0; i < socketList.length; i++){
+        if(!socketList[i].stood){
+            return false;
+        }
+    }
+    return true;
+}
+
+function anyBust(socketList){
+    for(var i = 0; i < socketList.length; i++){
+        if(socketList[i].busted){
+            return true;
+        }
+    }
+    return false;
+}
+
+function checkGameOver(socketList){
+    if(allStood(socketList) || anyBust(socketList) || (socketList[0].score == 21 && socketList[1].score == 21)){
+        // Game over
+        console.log("gameover test logging...");
+        io.to('room 1').emit('game over');
+    }
 }
 
 function hit(player, numOfCards = 1){
@@ -90,7 +165,9 @@ function hit(player, numOfCards = 1){
         // with updatePoints, player.hand.push(newCard) might be unneeded (if we just update points instead of keeping track of a hand)
         player.hand.push(newCard);
         updateScore(player, newCard);
+        // Emit hit event to client, emit opponent hit event to other players in room 1 (there's only 1 tho)
         player.emit('hit', newCard);
+        player.to('room 1').emit('opponent hit');
     }
 }
 
@@ -109,6 +186,7 @@ function updateScore(player, newCard){
         else{
             // Game over - player busted
             console.log("Game over - player busted");
+            player.busted = true;
             //something like: player.emit('busted')
         }
     }

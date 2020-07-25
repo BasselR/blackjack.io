@@ -25,8 +25,9 @@
     <button onclick="requestHit()">Hit</button>
     <button onclick="requestStand()">Stand</button>
     <div class="playingCards simpleCards" id="opponentHand">
-        <div class="card back">*</div>
+        <!-- <div class="card back"></div> -->
     </div>
+    <div id="gameOverMsg"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="game.js"></script>
