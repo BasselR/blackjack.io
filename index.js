@@ -111,6 +111,8 @@ function initGame(players){
     console.log("Init game...");
     gameDeck = new Deck();
     gameDeck.shuffle();
+    p1Turn = true;
+    p1Bool = true;
     players.forEach((player) => {
         player.score = 0;
         player.bigAces = 0;
