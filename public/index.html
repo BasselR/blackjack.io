@@ -9,27 +9,29 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="initial">
-        <button onclick="requestRoom1()">Join Room 1</button>
+
+    <div class="center" id="first">
+        <input id="writeNick" placeholder="Enter nickname...">
     </div>
-    <!-- <p>Blassel</p> -->
-    <!-- <div class="playingCards simpleCards" id="deck">
-        <div class="card rank-7 spades">
-            <span class="rank">7</span>
-            <span class="suit">&spades;</span>
+
+    <div id="second">
+        <div class="initial">
+            <button onclick="requestRoom1()">Join Room 1</button>
         </div>
-    </div> -->
-    <div id="scoreDiv"></div>
-    <div id="matchScoreDiv"></div>
-    <div class="playingCards simpleCards" id="hand">
+        <div class="initial" id="lobbyMsg"></div>
     </div>
-    <button onclick="requestHit()">Hit</button>
-    <button onclick="requestStand()">Stand</button>
-    <div class="playingCards simpleCards" id="opponentHand">
-        <!-- <div class="card back"></div> -->
+
+    <div id="third">
+        <div id="scoreDiv"></div>
+        <div id="matchScoreDiv"></div>
+        <div class="playingCards simpleCards" id="hand"></div>
+        <button onclick="requestHit()">Hit</button>
+        <button onclick="requestStand()">Stand</button>
+        <div class="playingCards simpleCards" id="opponentHand"></div>
+        <div id="gameOverMsg"></div>
+        <button id="restart" onclick="readyUp()">Ready Restart</button>
     </div>
-    <div id="gameOverMsg"></div>
-    <button id="restart" onclick="readyUp()">Ready Restart</button>
+    
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="game.js"></script>

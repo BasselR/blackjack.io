@@ -1,0 +1,18 @@
+.center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+#writeNick {
+    border: none transparent;
+    outline: none;
+    font-size: larger;
+}
+
+#first { text-align: center; }
+#second { display: none; }
+#third { display: none; }

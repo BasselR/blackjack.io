@@ -23,12 +23,15 @@ setInterval(function(){
 
 io.on('connection', socket => {
     // auto assign nickname to matthew for testing
-    socket.nick = "Matthew";
+    // socket.nick = "Matthew";
     console.log(socket.id + " joined.");
     //console.log(players);
     players.push(socket.id);
     console.log(players);
     // Attempt to join room 1 (if there is space)
+    socket.on('set nickname', nickname => {
+        socket.nick = nickname;
+    });
     socket.on('request room 1', () => {
         console.log(socket.id + " requesting to join room 1.");
         if(room1Population < 2){
@@ -61,6 +64,7 @@ io.on('connection', socket => {
         }
         else{
             console.log(socket.id + " cannot join room 1 (full).");
+            socket.emit('room full');
         }
     });
     // Hit

@@ -4,6 +4,24 @@ console.log("beans");
 var matchScore = 0;
 var nickname = "";
 
+const myInput = document.getElementById("writeNick");
+$('#writeNick').focus();
+
+myInput.addEventListener("keyup", function(event) {
+	// 13 === 'enter' key
+	if (event.keyCode === 13) {
+	  event.preventDefault();
+	  setNick();
+	}
+});
+  
+function setNick(){
+	nickname = document.getElementById('writeNick').value;
+	socket.emit('set nickname', nickname);
+	$('#first').fadeOut();
+	$('#second').show();
+}
+
 function revealOpponent(oppHand){
 	let oppHandDiv = document.getElementById('opponentHand');
 	oppHandDiv.innerHTML = '';
@@ -40,6 +58,15 @@ function requestStand(){
 }
 
 // Receivers
+
+socket.on('start game', () => {
+	$('#second').fadeOut();
+	$('#third').show();
+});
+
+socket.on('room full', () => {
+	document.getElementById('lobbyMsg').textContent = "That room is full!";
+});
 
 // On game restart
 socket.on('restart', () => {
@@ -106,16 +133,4 @@ socket.on('opponent hit', () => {
 socket.on('update score', newScore =>{
 	let scoreDiv = document.getElementById('scoreDiv');
 	scoreDiv.innerHTML = "New score: " + newScore;
-});
-
-socket.on('render', deck => {
-    renderDeck(deck);
-});
-
-socket.on('personal', () => {
-	console.log("received personal");
-});
-
-socket.on('room 1 only', dirName => {
-	console.log("Room 1 only message: " + dirName);
 });
