@@ -39,16 +39,19 @@ socket.on('game over', () => {
 });
 
 socket.on('tie', opponentHand => {
+	console.log("Receiving tie event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You Tied!";
 })
 
 socket.on('win', opponentHand => {
+	console.log("Receiving win event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You won!";
 })
 
 socket.on('lose', opponentHand => {
+	console.log("Receiving lose event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You lost!";
 })

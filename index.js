@@ -163,6 +163,7 @@ function allBust(socketList){
 }
 
 function checkGameOver(socketList){
+    console.log("checking game over, last turn: " + lastTurn);
     // if(allStood(socketList) || anyBust(socketList) || (socketList[0].score == 21 && socketList[1].score == 21)){
     //     // Game over
     //     console.log("gameover test logging...");
@@ -188,6 +189,7 @@ function checkGameOver(socketList){
             io.to(socketList[1].id).emit('tie', socketList[0].hand);
         }
         else if(typeof(winnerResult) == 'number'){
+            //console.log("winner type is number, winner id: " + winner.id);
             let winnerIndex = winnerResult;
             let winner = socketList[winnerIndex];
             let loser = getOpponent(winner, socketList);
@@ -221,10 +223,11 @@ function determineWinner(socketList){
     // Return winner (as index of socketList array)
     let currentWinner = 0;
     for(var i = 1; i < socketList.length; i++){
-        if(socketList[i].score > currentWinner.score){
+        if(socketList[i].score > socketList[currentWinner].score){
             currentWinner = i;
         }
     }
+    console.log("Winner: " + socketList[currentWinner].id);
     return currentWinner;
 }
 
