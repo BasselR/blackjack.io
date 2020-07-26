@@ -144,6 +144,15 @@ function allStood(socketList){
     return true;
 }
 
+function anyStood(socketList){
+    for(var i = 0; i < socketList.length; i++){
+        if(socketList[i].stood){
+            return true;
+        }
+    }
+    return false;
+}
+
 function anyBust(socketList){
     for(var i = 0; i < socketList.length; i++){
         if(socketList[i].busted){
@@ -171,12 +180,15 @@ function checkGameOver(socketList){
     // }
     if(lastTurn){
         if(allBust(socketList)){
+            console.log("last turn true, all bust true");
             io.to(socketList[0].id).emit('tie', socketList[1].hand);
             io.to(socketList[1].id).emit('tie', socketList[0].hand);
         }
         else{
-            let winner = socketList.filter(player => player.busted);
+            console.log("last turn true, all bust false");
+            let winner = socketList.filter(player => !player.busted)[0];
             let loser = getOpponent(winner, socketList);
+            console.log("winner id: " + winner.id);
             io.to(winner.id).emit('win', loser.hand);
             io.to(loser.id).emit('lose', winner.hand);
         }
@@ -199,10 +211,20 @@ function checkGameOver(socketList){
     }
     // If someone busts when the opponent had already been standing.. ??!!
     if(anyBust(socketList)){
-        lastTurn = true;
+        if(anyStood(socketList)){
+            let winner = socketList.filter(player => !player.busted)[0];
+            let loser = getOpponent(winner, socketList);
+            console.log("winner id: " + winner.id);
+            io.to(winner.id).emit('win', loser.hand);
+            io.to(loser.id).emit('lose', winner.hand);
+        }
+        else{
+            lastTurn = true;
+        }
     }
 }
 
+// For determining the winner of a showdown
 function determineWinner(socketList){
     // Handle empty socketList / room
     if(socketList.length == 0){
@@ -247,6 +269,7 @@ function hit(player, numOfCards = 1){
 
 function updateScore(player, newCard){
     console.log("Updating score...");
+    console.log("new card: " + newCard.Value);
     // If player drew an ace
     if(newCard.Value === "A"){
         player.bigAces++;
@@ -254,7 +277,7 @@ function updateScore(player, newCard){
     // If a player hits 21 (blackjack)
     if(player.score + newCard.Points == 21){
         player.stood = true;
-        console.log(socket.id + " hit 21 (blackjack)!");
+        console.log(player.id + " hit 21 (blackjack)!");
     }
     // If player is about to bust
     else if(player.score + newCard.Points > 21){
