@@ -13,8 +13,8 @@ constantly keeping track of how many big aces a player's hand contains, and dedu
 
 
 Regarding game end:
-If someone stands, the other player can keep hitting until they stand or bust.
-If someone hits 21, they automatically stand.
-If both players stand, game ends and card showdown occurs.
+(x) If someone stands, the other player can keep hitting until they stand or bust.
+(x) If someone hits 21, they automatically stand.
+(x) If both players stand, game ends and card showdown occurs.
 If someone busts, the other player does not know. They are given one final turn. If they bust, game is tied.
 If not, they win.

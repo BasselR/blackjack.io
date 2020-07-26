@@ -14,7 +14,7 @@ var room1Players = [];
 var gameDeck;
 var p1Turn = true;
 var p1Bool = true;
-var someoneStood = false;
+var lastTurn = false;
 var room1Population = 0;
 //var p1 = {};
 //players.push(p1);
@@ -86,6 +86,7 @@ io.on('connection', socket => {
     socket.on('stand', () => {
         if(socket.p1 == p1Turn){
             socket.stood = true;
+            console.log(socket.id + " stands.")
             // someoneStood = true;
             p1Turn = !p1Turn;
         }
@@ -113,6 +114,7 @@ function initGame(players){
     gameDeck.shuffle();
     p1Turn = true;
     p1Bool = true;
+    lastTurn = false;
     players.forEach((player) => {
         player.score = 0;
         player.bigAces = 0;
@@ -151,12 +153,79 @@ function anyBust(socketList){
     return false;
 }
 
-function checkGameOver(socketList){
-    if(allStood(socketList) || anyBust(socketList) || (socketList[0].score == 21 && socketList[1].score == 21)){
-        // Game over
-        console.log("gameover test logging...");
-        io.to('room 1').emit('game over');
+function allBust(socketList){
+    for(var i = 0; i < socketList.length; i++){
+        if(!socketList[i].busted){
+            return false;
+        }
     }
+    return true;
+}
+
+function checkGameOver(socketList){
+    // if(allStood(socketList) || anyBust(socketList) || (socketList[0].score == 21 && socketList[1].score == 21)){
+    //     // Game over
+    //     console.log("gameover test logging...");
+    //     io.to('room 1').emit('game over');
+    // }
+    if(lastTurn){
+        if(allBust(socketList)){
+            io.to(socketList[0].id).emit('tie', socketList[1].hand);
+            io.to(socketList[1].id).emit('tie', socketList[0].hand);
+        }
+        else{
+            let winner = socketList.filter(player => player.busted);
+            let loser = getOpponent(winner, socketList);
+            io.to(winner.id).emit('win', loser.hand);
+            io.to(loser.id).emit('lose', winner.hand);
+        }
+    }
+    if(allStood(socketList)){
+        let winnerResult = determineWinner(socketList);
+        if(winnerResult == "tie"){
+            //io.to('room 1').emit('tie');
+            io.to(socketList[0].id).emit('tie', socketList[1].hand);
+            io.to(socketList[1].id).emit('tie', socketList[0].hand);
+        }
+        else if(typeof(winnerResult) == 'number'){
+            let winnerIndex = winnerResult;
+            let winner = socketList[winnerIndex];
+            let loser = getOpponent(winner, socketList);
+            io.to(winner.id).emit('win', loser.hand);
+            io.to(loser.id).emit('lose', winner.hand);
+        }
+    }
+    // If someone busts when the opponent had already been standing.. ??!!
+    if(anyBust(socketList)){
+        lastTurn = true;
+    }
+}
+
+function determineWinner(socketList){
+    // Handle empty socketList / room
+    if(socketList.length == 0){
+        console.log("Cannot determine winner of empty socketList!");
+        return;
+    }
+    // Handle tie at showdown
+    let currentlyTied = true;
+    for(var i = 1; i < socketList.length; i++){
+        if(socketList[i].score != socketList[i-1].score){
+            currentlyTied = false;
+            break;
+        }
+    }
+    if(currentlyTied){
+        return "tie";
+    }
+    // Return winner (as index of socketList array)
+    let currentWinner = 0;
+    for(var i = 1; i < socketList.length; i++){
+        if(socketList[i].score > currentWinner.score){
+            currentWinner = i;
+        }
+    }
+    return currentWinner;
 }
 
 function hit(player, numOfCards = 1){
@@ -179,8 +248,13 @@ function updateScore(player, newCard){
     if(newCard.Value === "A"){
         player.bigAces++;
     }
+    // If a player hits 21 (blackjack)
+    if(player.score + newCard.Points == 21){
+        player.stood = true;
+        console.log(socket.id + " hit 21 (blackjack)!");
+    }
     // If player is about to bust
-    if(player.score + newCard.Points > 21){
+    else if(player.score + newCard.Points > 21){
         if(player.bigAces > 0){
             player.bigAces--;
             player.score -= 10;

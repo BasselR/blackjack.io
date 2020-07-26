@@ -1,6 +1,24 @@
 const socket = io();
 console.log("beans");
 
+function revealOpponent(oppHand){
+	let oppHandDiv = document.getElementById('opponentHand');
+	oppHandDiv.innerHTML = '';
+	oppHand.forEach(oppCard => {
+		let card = document.createElement("div");
+		let spanRank = document.createElement("span");
+		spanRank.innerHTML = oppCard.Value;
+		spanRank.className = "rank";
+		let spanSuit = document.createElement("span");
+		spanSuit.innerHTML = `&${oppCard.Suit};`;
+		spanSuit.className = "suit";
+		card.appendChild(spanRank);
+		card.appendChild(spanSuit);
+		card.className = `card rank-${oppCard.Value} ${oppCard.Suit}`;
+		oppHandDiv.appendChild(card);
+	});
+}
+
 // Emitters 
 function requestRoom1(){
 	socket.emit('request room 1');
@@ -19,6 +37,21 @@ socket.on('game over', () => {
 	console.log("outside test success!!!");
 	document.getElementById('gameOverMsg').innerHTML = "Game over!!!";
 });
+
+socket.on('tie', opponentHand => {
+	revealOpponent(opponentHand);
+	document.getElementById('gameOverMsg').innerHTML = "You Tied!";
+})
+
+socket.on('win', opponentHand => {
+	revealOpponent(opponentHand);
+	document.getElementById('gameOverMsg').innerHTML = "You won!";
+})
+
+socket.on('lose', opponentHand => {
+	revealOpponent(opponentHand);
+	document.getElementById('gameOverMsg').innerHTML = "You lost!";
+})
 
 socket.on('join room 1', () => {
 	console.log("You have successfully joined room 1.");
