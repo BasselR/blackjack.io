@@ -1,6 +1,9 @@
 const socket = io();
 console.log("beans");
 
+var matchScore = 0;
+var nickname = "";
+
 function revealOpponent(oppHand){
 	let oppHandDiv = document.getElementById('opponentHand');
 	oppHandDiv.innerHTML = '';
@@ -24,6 +27,10 @@ function requestRoom1(){
 	socket.emit('request room 1');
 }
 
+function readyUp(){
+	socket.emit('ready');
+}
+
 function requestHit(){
 	socket.emit('hit');
 }
@@ -33,16 +40,29 @@ function requestStand(){
 }
 
 // Receivers
-socket.on('game over', () => {
-	console.log("outside test success!!!");
-	document.getElementById('gameOverMsg').innerHTML = "Game over!!!";
+
+// On game restart
+socket.on('restart', () => {
+	// Reset divs to initial state
+	console.log("Receiving match restart event.");
+	document.getElementById('gameOverMsg').innerHTML = "";
+	document.getElementById('hand').innerHTML = "";
+	document.getElementById('opponentHand').innerHTML = "";
 });
+
+socket.on('new match score', matchScoreText => {
+	document.getElementById('matchScoreDiv').textContent = matchScoreText;
+});
+
+// socket.on('new nickname', newNick => {
+// 	nickname = newNick;
+// });
 
 socket.on('tie', opponentHand => {
 	console.log("Receiving tie event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You Tied!";
-})
+});
 
 socket.on('win', opponentHand => {
 	console.log("Receiving win event!");

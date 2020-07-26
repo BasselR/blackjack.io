@@ -16,5 +16,5 @@ Regarding game end:
 (x) If someone stands, the other player can keep hitting until they stand or bust.
 (x) If someone hits 21, they automatically stand.
 (x) If both players stand, game ends and card showdown occurs.
-If someone busts, the other player does not know. They are given one final turn. If they bust, game is tied.
-If not, they win.
+(x) If someone busts, they appear to stand. Opponent is given a final turn. If they bust, tie game. If not, they win.
+(x) Support rematch (within room) and switch who goes first each game. Keep tally of score between room's players.

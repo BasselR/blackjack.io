@@ -20,6 +20,7 @@
         </div>
     </div> -->
     <div id="scoreDiv"></div>
+    <div id="matchScoreDiv"></div>
     <div class="playingCards simpleCards" id="hand">
     </div>
     <button onclick="requestHit()">Hit</button>
@@ -28,6 +29,7 @@
         <!-- <div class="card back"></div> -->
     </div>
     <div id="gameOverMsg"></div>
+    <button id="restart" onclick="readyUp()">Ready Restart</button>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="game.js"></script>

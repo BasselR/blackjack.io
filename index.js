@@ -16,10 +16,6 @@ var p1Turn = true;
 var p1Bool = true;
 var lastTurn = false;
 var room1Population = 0;
-//var p1 = {};
-//players.push(p1);
-//initGame();
-//console.log(p1.hand);
 
 setInterval(function(){
     console.log(room1Population);
@@ -46,8 +42,9 @@ io.on('connection', socket => {
                     console.log("Duplicate room-join attempt by " + socket.id);
                 }
                 else{
-                    socket.p1 = p1Bool;
-                    p1Bool = !p1Bool;
+                    socket.matchScore = 0;
+                    // socket.p1 = p1Bool;
+                    // p1Bool = !p1Bool;
                     room1Players.push(socket);
                 }
                 socket.emit('join room 1');
@@ -98,6 +95,16 @@ io.on('connection', socket => {
         }
         checkGameOver(room1Players);
     });
+    // Ready up (for restart)
+    socket.on('ready', () => {
+        console.log(socket.id + " is readying up!");
+        socket.ready = true;
+        if(checkBothReady(room1Players)){
+            console.log("Both players are ready. Game restarting...");
+            io.to('room 1').emit('restart');
+            initGame(room1Players);
+        }
+    });
     // Disconnect
     socket.on('disconnect', discMsg => {
         console.log(socket.id + " disconnected.");
@@ -107,19 +114,36 @@ io.on('connection', socket => {
     });
 });
 
+// Determines whether or not both players in the socketList are ready for rematch
+function checkBothReady(socketList){
+    for(var i = 0; i < socketList.length; i++){
+        if(!socketList[i].ready){
+            return false;
+        }
+    }
+    return true;
+}
+
 // Takes in an array of players (sockets)
 function initGame(players){
     console.log("Init game...");
     gameDeck = new Deck();
     gameDeck.shuffle();
-    p1Turn = true;
-    p1Bool = true;
     lastTurn = false;
+    p1Turn = true;
+    // p1Bool = true;
+    // These 3 lines try to alternate who starts
+    p1Bool = !p1Bool;
+    players[0].p1 = p1Bool;
+    players[1].p1 = !p1Bool;
+
+
     players.forEach((player) => {
         player.score = 0;
         player.bigAces = 0;
         player.stood = false;
         player.busted = false;
+        player.ready = false;
         // player hand might turn out to be unneccessary thanks to updating score instead
         player.hand = new Array();
         hit(player, 2);
@@ -173,51 +197,42 @@ function allBust(socketList){
 
 function checkGameOver(socketList){
     console.log("checking game over, last turn: " + lastTurn);
-    // if(allStood(socketList) || anyBust(socketList) || (socketList[0].score == 21 && socketList[1].score == 21)){
-    //     // Game over
-    //     console.log("gameover test logging...");
-    //     io.to('room 1').emit('game over');
-    // }
     if(lastTurn){
+        // Both players bust
         if(allBust(socketList)){
             console.log("last turn true, all bust true");
-            io.to(socketList[0].id).emit('tie', socketList[1].hand);
-            io.to(socketList[1].id).emit('tie', socketList[0].hand);
+            emitTie(socketList);
         }
+        // One player busts, other player gets last turn and doesn't bust
         else{
             console.log("last turn true, all bust false");
             let winner = socketList.filter(player => !player.busted)[0];
-            let loser = getOpponent(winner, socketList);
+            emitWinLoss(winner, socketList);
             console.log("winner id: " + winner.id);
-            io.to(winner.id).emit('win', loser.hand);
-            io.to(loser.id).emit('lose', winner.hand);
         }
     }
     if(allStood(socketList)){
         let winnerResult = determineWinner(socketList);
+        // Both players stand, score tied
         if(winnerResult == "tie"){
-            //io.to('room 1').emit('tie');
-            io.to(socketList[0].id).emit('tie', socketList[1].hand);
-            io.to(socketList[1].id).emit('tie', socketList[0].hand);
+            emitTie(socketList);
         }
+        // Both players stand, showdown
         else if(typeof(winnerResult) == 'number'){
             //console.log("winner type is number, winner id: " + winner.id);
             let winnerIndex = winnerResult;
             let winner = socketList[winnerIndex];
-            let loser = getOpponent(winner, socketList);
-            io.to(winner.id).emit('win', loser.hand);
-            io.to(loser.id).emit('lose', winner.hand);
+            emitWinLoss(winner, socketList);
         }
     }
-    // If someone busts when the opponent had already been standing.. ??!!
+    // If someone busts when the opponent had already been standing
     if(anyBust(socketList)){
         if(anyStood(socketList)){
             let winner = socketList.filter(player => !player.busted)[0];
-            let loser = getOpponent(winner, socketList);
             console.log("winner id: " + winner.id);
-            io.to(winner.id).emit('win', loser.hand);
-            io.to(loser.id).emit('lose', winner.hand);
+            emitWinLoss(winner, socketList);
         }
+        // Someone busts, activating final turn
         else{
             lastTurn = true;
         }
@@ -253,6 +268,32 @@ function determineWinner(socketList){
     return currentWinner;
 }
 
+function emitTie(socketList){
+    socketList[0].matchScore += 0.5;
+    socketList[1].matchScore += 0.5;
+    io.to(socketList[0].id).emit('tie', socketList[1].hand);
+    io.to(socketList[1].id).emit('tie', socketList[0].hand);
+    emitMatchScore(socketList);
+}
+
+function emitWinLoss(winner, socketList){
+    winner.matchScore++;
+    let loser = getOpponent(winner, socketList);
+    io.to(winner.id).emit('win', loser.hand);
+    io.to(loser.id).emit('lose', winner.hand);
+    emitMatchScore(socketList);
+}
+
+function emitMatchScore(socketList){
+    // these dont actually represent 'p1' / who goes first, they're just placeholder names
+    let p1 = socketList[0];
+    let p2 = socketList[1];
+    io.to(p1.id).emit('new match score', `${p1.nick}: ${p1.matchScore} | ${p2.nick}: ${p2.matchScore}`);
+    io.to(p2.id).emit('new match score', `${p2.nick}: ${p2.matchScore} | ${p1.nick}: ${p1.matchScore}`);
+    // io.to(p1.id).emit('new match score', [p1.matchScore, p2.matchScore]);
+    // io.to(p2.id).emit('new match score', [p2.matchScore, p1.matchScore]);
+}
+
 function hit(player, numOfCards = 1){
     // deal a card to player
     for(var i = 0; i < numOfCards; i++){
@@ -276,7 +317,7 @@ function updateScore(player, newCard){
     }
     // If a player hits 21 (blackjack)
     if(player.score + newCard.Points == 21){
-        player.stood = true;
+        //player.stood = true;
         console.log(player.id + " hit 21 (blackjack)!");
     }
     // If player is about to bust
