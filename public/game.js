@@ -41,6 +41,31 @@ function revealOpponent(oppHand){
 	});
 }
 
+// function toggleActionBtns(){
+// 	let buttons = Array.from(document.getElementsByClassName('actions'));
+// 	buttons.forEach(btn => {
+// 		console.log("disbaling????");
+// 		btn.toggleAttribute('disabled');
+// 	});
+// }
+
+function setActionBtns(myTurn){
+	let buttons = Array.from(document.getElementsByClassName('actions'));
+	buttons.forEach(btn => {
+		console.log("set action disabled to: " + myTurn);
+		if(myTurn){
+			btn.removeAttribute('disabled');
+		}
+		else{
+			btn.setAttribute('disabled', "");
+		}
+	});
+}
+
+function setTurnText(myTurn){
+	document.getElementById('turnDiv').textContent = myTurn ? "Your turn" : "Opponent's turn";
+}
+
 // Emitters 
 function requestRoom1(){
 	socket.emit('request room 1');
@@ -59,6 +84,11 @@ function requestStand(){
 }
 
 // Receivers
+
+socket.on('turn update', myTurn => {
+	setActionBtns(myTurn);
+	setTurnText(myTurn);
+});
 
 socket.on('start game', () => {
 	$('#second').hide();
@@ -79,8 +109,17 @@ socket.on('restart', () => {
 	oppStood = false;
 });
 
-socket.on('new match score', matchScoreText => {
-	document.getElementById('matchScoreDiv').textContent = matchScoreText;
+socket.on('game over', matchScoreObj => {
+	console.log('game over event received...');
+	// formatting for object: matchScoreObj = {matchScore, oppScore}
+	document.getElementById('matchScoreDiv').textContent = matchScoreObj.matchScore;
+	scoreDiv.innerHTML = scoreDiv.innerHTML + " | Opponent's score: " + matchScoreObj.oppScore;
+});
+
+socket.on('match score', matchScore => {
+	console.log('match score event received...');
+	let matchScoreDiv = document.getElementById('matchScoreDiv');
+	matchScoreDiv.textContent = matchScore;
 });
 
 socket.on('tie', opponentHand => {
@@ -108,8 +147,16 @@ socket.on('join room 1', () => {
 	console.log("You have successfully joined room 1.");
 });
 
-socket.on('init turn', theirTurn => {
-	document.getElementById('turnDiv').textContent = theirTurn ? "Your turn" : "Opponent's turn";
+socket.on('init turn', myTurn => {
+	// let button = document.getElementsByClassName('actions')[0];
+	// console.log('buttom ndisabled attribute: ' + button.getAttribute('disabled'));
+
+	// if(!myTurn){
+	// 	toggleActionBtns();
+	// }
+	console.log('receiving init turn event');
+	setActionBtns(myTurn);
+	setTurnText(myTurn);
 });
 
 socket.on('hit', newCard =>{
@@ -126,9 +173,10 @@ socket.on('hit', newCard =>{
 	card.appendChild(spanSuit);
 	card.className = `card rank-${newCard.Value} ${newCard.Suit}`;
 	handDiv.appendChild(card);
-	if(!oppStood){
-		document.getElementById('turnDiv').textContent = "Opponent's turn";
-	}
+	// if(!oppStood){
+	// 	document.getElementById('turnDiv').textContent = "Opponent's turn";
+	// }
+	// toggleActionBtns();
 });
 
 socket.on('opponent hit', () => {
@@ -136,19 +184,30 @@ socket.on('opponent hit', () => {
 	let card = document.createElement("div");
 	card.className = "card back";
 	oppHandDiv.appendChild(card);
-	document.getElementById('turnDiv').textContent = "Your turn";
+	// document.getElementById('turnDiv').textContent = "Your turn";
+	// toggleActionBtns();
 });
 
 socket.on('stand', () => {
-	document.getElementById('turnDiv').textContent = "Opponent's turn";
+	// document.getElementById('turnDiv').textContent = "Opponent's turn";
+	// toggleActionBtns();
 });
 
 socket.on('opponent stand', () => {
 	oppStood = true;
-	document.getElementById('turnDiv').textContent = "Your turn";
+	// document.getElementById('turnDiv').textContent = "Your turn";
+	// toggleActionBtns();
 });
 
-socket.on('update score', newScore =>{
+// scores is a js object either carries both scores (if game over) or just your score
+socket.on('update score', score =>{
 	let scoreDiv = document.getElementById('scoreDiv');
-	scoreDiv.innerHTML = "New score: " + newScore;
+	scoreDiv.innerHTML = "Your score: " + score;
+	//console.log("opp score: " + scores.oppScore);
+	// if(scores.oppScore){
+	// 	scoreDiv.innerHTML = "Your score: " + scores.yourScore + " | Opponent's score: " + scores.oppScore;
+	// }
+	// else{
+	// 	scoreDiv.innerHTML = "Your score: " + scores.yourScore;
+	// }
 });

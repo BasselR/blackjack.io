@@ -11,8 +11,41 @@
     border: none transparent;
     outline: none;
     font-size: larger;
+    background-color: transparent;
+
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-20%, -50%);
 }
 
 #first { text-align: center; }
 #second { display: none; }
 #third { display: none; }
+
+html {
+    background: rgb(239,248,249);
+    background: linear-gradient(332deg, rgba(239,248,249,1) 0%, rgba(232,247,255,1) 47%, rgba(222,217,217,1) 100%);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+/* .bg {
+    background-image: url("felt.jpg");
+    height: 100vh;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+} */

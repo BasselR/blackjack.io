@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <div class="center" id="first">
+    <div id="first">
         <input id="writeNick" placeholder="Enter nickname..." autocomplete="off">
     </div>
 
@@ -23,13 +23,13 @@
         <div class="initial" id="lobbyMsg"></div>
     </div>
 
-    <div id="third">
-        <div id="scoreDiv"></div>
+    <div class="bg" id="third">
         <div id="matchScoreDiv"></div>
+        <div id="scoreDiv"></div>
         <div class="playingCards simpleCards" id="hand"></div>
         <div id="turnDiv"></div>
-        <button onclick="requestHit()">Hit</button>
-        <button onclick="requestStand()">Stand</button>
+        <button class="actions" onclick="requestHit()">Hit</button>
+        <button class="actions" onclick="requestStand()">Stand</button>
         <div class="playingCards simpleCards" id="opponentHand"></div>
         <div id="gameOverMsg"></div>
         <button id="restart" onclick="readyUp()">Ready Restart</button>
