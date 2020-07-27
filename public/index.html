@@ -7,16 +7,17 @@
     <!-- <link rel="stylesheet" href="playing-cards/cards.css"> -->
     <link rel="stylesheet" type="text/css" href="playing-cards/cards.css" media="screen" />
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 <body>
 
     <div class="center" id="first">
-        <input id="writeNick" placeholder="Enter nickname...">
+        <input id="writeNick" placeholder="Enter nickname..." autocomplete="off">
     </div>
 
     <div id="second">
-        <div class="initial">
-            <button onclick="requestRoom1()">Join Room 1</button>
+        <div class="center initial">
+            <button class="btn-primary" onclick="requestRoom1()">Join Room 1</button>
         </div>
         <div class="initial" id="lobbyMsg"></div>
     </div>
@@ -25,13 +26,14 @@
         <div id="scoreDiv"></div>
         <div id="matchScoreDiv"></div>
         <div class="playingCards simpleCards" id="hand"></div>
+        <div id="turnDiv"></div>
         <button onclick="requestHit()">Hit</button>
         <button onclick="requestStand()">Stand</button>
         <div class="playingCards simpleCards" id="opponentHand"></div>
         <div id="gameOverMsg"></div>
         <button id="restart" onclick="readyUp()">Ready Restart</button>
     </div>
-    
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="game.js"></script>

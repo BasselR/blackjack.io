@@ -4,7 +4,7 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const path = require('path');
 
-// DeckModule's other exports are .Values and .Suits
+// DeckModule's other exports are .values, .suits and .points
 const Deck = require('./DeckModule').Deck;
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -22,8 +22,6 @@ setInterval(function(){
 }, 3000);
 
 io.on('connection', socket => {
-    // auto assign nickname to matthew for testing
-    // socket.nick = "Matthew";
     console.log(socket.id + " joined.");
     //console.log(players);
     players.push(socket.id);
@@ -46,19 +44,13 @@ io.on('connection', socket => {
                 }
                 else{
                     socket.matchScore = 0;
-                    // socket.p1 = p1Bool;
-                    // p1Bool = !p1Bool;
                     room1Players.push(socket);
                 }
                 socket.emit('join room 1');
                 if(room1Population == 2){
                     // Second player has successfully joined, start this room's game
-                    // this io.to('room 1').emit('start game') can be used to tell clients to hide initial screen
                     io.to('room 1').emit('start game');
                     initGame(room1Players);
-                    // room1Players.forEach((player) => {
-                    //     console.log(`Player id: ${player.id}, player num: ${player.playerNum}`);
-                    // });
                 }
             });
         }
@@ -86,9 +78,7 @@ io.on('connection', socket => {
     // Stand
     socket.on('stand', () => {
         if(socket.p1 == p1Turn){
-            socket.stood = true;
-            console.log(socket.id + " stands.")
-            // someoneStood = true;
+            stand(socket);
             p1Turn = !p1Turn;
         }
         // else if(socket.stood){
@@ -135,12 +125,6 @@ function initGame(players){
     gameDeck.shuffle();
     lastTurn = false;
     p1Turn = true;
-    // p1Bool = true;
-    // These 3 lines try to alternate who starts
-    p1Bool = !p1Bool;
-    players[0].p1 = p1Bool;
-    players[1].p1 = !p1Bool;
-
 
     players.forEach((player) => {
         player.score = 0;
@@ -152,6 +136,14 @@ function initGame(players){
         player.hand = new Array();
         hit(player, 2);
     });
+
+    // These 3 lines try to alternate who starts
+    p1Bool = !p1Bool;
+    players[0].p1 = p1Bool;
+    players[1].p1 = !p1Bool;
+
+    players[0].emit('init turn', players[0].p1);
+    players[1].emit('init turn', players[1].p1);
 }
 
 function getOpponent(player, socketList){
@@ -294,8 +286,6 @@ function emitMatchScore(socketList){
     let p2 = socketList[1];
     io.to(p1.id).emit('new match score', `${p1.nick}: ${p1.matchScore} | ${p2.nick}: ${p2.matchScore}`);
     io.to(p2.id).emit('new match score', `${p2.nick}: ${p2.matchScore} | ${p1.nick}: ${p1.matchScore}`);
-    // io.to(p1.id).emit('new match score', [p1.matchScore, p2.matchScore]);
-    // io.to(p2.id).emit('new match score', [p2.matchScore, p1.matchScore]);
 }
 
 function hit(player, numOfCards = 1){
@@ -310,6 +300,13 @@ function hit(player, numOfCards = 1){
         player.emit('hit', newCard);
         player.to('room 1').emit('opponent hit');
     }
+}
+
+function stand(player){
+    player.stood = true;
+    console.log(player.id + " stands.")
+    player.emit('stand');
+    player.to('room 1').emit('opponent stand');
 }
 
 function updateScore(player, newCard){

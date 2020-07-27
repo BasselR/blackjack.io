@@ -3,6 +3,7 @@ console.log("beans");
 
 var matchScore = 0;
 var nickname = "";
+var oppStood = false;
 
 const myInput = document.getElementById("writeNick");
 $('#writeNick').focus();
@@ -60,8 +61,8 @@ function requestStand(){
 // Receivers
 
 socket.on('start game', () => {
-	$('#second').fadeOut();
-	$('#third').show();
+	$('#second').hide();
+	$('#third').fadeIn();
 });
 
 socket.on('room full', () => {
@@ -75,36 +76,40 @@ socket.on('restart', () => {
 	document.getElementById('gameOverMsg').innerHTML = "";
 	document.getElementById('hand').innerHTML = "";
 	document.getElementById('opponentHand').innerHTML = "";
+	oppStood = false;
 });
 
 socket.on('new match score', matchScoreText => {
 	document.getElementById('matchScoreDiv').textContent = matchScoreText;
 });
 
-// socket.on('new nickname', newNick => {
-// 	nickname = newNick;
-// });
-
 socket.on('tie', opponentHand => {
 	console.log("Receiving tie event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You Tied!";
+	document.getElementById('turnDiv').textContent = "";
 });
 
 socket.on('win', opponentHand => {
 	console.log("Receiving win event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You won!";
+	document.getElementById('turnDiv').textContent = "";
 })
 
 socket.on('lose', opponentHand => {
 	console.log("Receiving lose event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You lost!";
+	document.getElementById('turnDiv').textContent = "";
 })
 
 socket.on('join room 1', () => {
 	console.log("You have successfully joined room 1.");
+});
+
+socket.on('init turn', theirTurn => {
+	document.getElementById('turnDiv').textContent = theirTurn ? "Your turn" : "Opponent's turn";
 });
 
 socket.on('hit', newCard =>{
@@ -121,6 +126,9 @@ socket.on('hit', newCard =>{
 	card.appendChild(spanSuit);
 	card.className = `card rank-${newCard.Value} ${newCard.Suit}`;
 	handDiv.appendChild(card);
+	if(!oppStood){
+		document.getElementById('turnDiv').textContent = "Opponent's turn";
+	}
 });
 
 socket.on('opponent hit', () => {
@@ -128,6 +136,16 @@ socket.on('opponent hit', () => {
 	let card = document.createElement("div");
 	card.className = "card back";
 	oppHandDiv.appendChild(card);
+	document.getElementById('turnDiv').textContent = "Your turn";
+});
+
+socket.on('stand', () => {
+	document.getElementById('turnDiv').textContent = "Opponent's turn";
+});
+
+socket.on('opponent stand', () => {
+	oppStood = true;
+	document.getElementById('turnDiv').textContent = "Your turn";
 });
 
 socket.on('update score', newScore =>{
