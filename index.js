@@ -365,15 +365,6 @@ function updateScore(player, newCard){
     }
     player.score += newCard.Points;
     player.emit('update score', player.score);
-    // hard coded for room 1
-    // let opp = getOpponent(player, room1Players);
-    // player.score += newCard.Points;
-    // if(gameOver){
-    //     player.emit('update score', { yourScore: player.score, oppScore: opp.score });
-    // }
-    // else{
-    //     player.emit('update score', { yourScore: player.score });
-    // }
 }
 
 // Returns whether or not a player is in a 'room' (list of sockets)
