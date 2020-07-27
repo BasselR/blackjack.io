@@ -10,7 +10,7 @@
 #writeNick {
     border: none transparent;
     outline: none;
-    font-size: larger;
+    font-size: x-large;
     background-color: transparent;
 
     margin: 0;
@@ -35,6 +35,19 @@ html, body {
     padding: 0;
     height: 100vh;
 }
+
+.btn {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
 
 /* .bg {
     background-image: url("felt.jpg");

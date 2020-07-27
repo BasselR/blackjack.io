@@ -18,7 +18,7 @@
 
     <div id="second">
         <div class="center initial">
-            <button class="btn-primary" onclick="requestRoom1()">Join Room 1</button>
+            <button class="btn" onclick="requestRoom1()">Join Room 1</button>
         </div>
         <div class="initial" id="lobbyMsg"></div>
     </div>
@@ -28,11 +28,11 @@
         <div id="scoreDiv"></div>
         <div class="playingCards simpleCards" id="hand"></div>
         <div id="turnDiv"></div>
-        <button class="actions" onclick="requestHit()">Hit</button>
-        <button class="actions" onclick="requestStand()">Stand</button>
+        <button class="btn actions" onclick="requestHit()">Hit</button>
+        <button class="btn actions" onclick="requestStand()">Stand</button>
         <div class="playingCards simpleCards" id="opponentHand"></div>
         <div id="gameOverMsg"></div>
-        <button id="restart" onclick="readyUp()">Ready Restart</button>
+        <button class="btn" id="restart" onclick="readyUp()">Rematch</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
