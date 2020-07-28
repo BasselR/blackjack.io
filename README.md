@@ -12,5 +12,5 @@ Play against a friend over the internet at [this link](https://blackjack-baz.her
 * At the end of a round, both players can agree to rematch. The match score is kept track of at the top.
 
 ## Open-source licensing
-Playing cards CSS courtesy of [Selfthinker.org](https://github.com/selfthinker/CSS-Playing-Cards).
+Playing cards CSS courtesy of [Selfthinker.org](https://github.com/selfthinker/CSS-Playing-Cards).  
 License CC BY-SA: http://creativecommons.org/licenses/by-sa/3.0
