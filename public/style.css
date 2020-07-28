@@ -53,6 +53,7 @@ html, body {
     margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
+    border-radius: 4px;
 }
 
 .btn:hover {
@@ -63,19 +64,6 @@ html, body {
     background-color: #586b59;
 }
 
-/* .bg {
-    background-image: url("felt.jpg");
-    height: 100vh;
-}
-
-html, body {
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    height: 100vh;
-} */
 
 .half {background-image: linear-gradient(to right, #4CAF50 0%, #4CAF50 47%, #000 54%, #000 100%)}
 /* .half:hover { background-position: right center; } */
@@ -93,6 +81,7 @@ body {
     transition-duration: 0.05s;
     cursor: pointer;
     outline: none;
+    border-radius: 4px;
 }
 
 .rematchBtn:hover {
@@ -115,6 +104,9 @@ body {
 
 .actions {
     margin: 20px 15px 30px;
+    width: 140px;
+    text-align: center;
+    border-radius: 4px;
 }
 
 #gameOverMsg {
