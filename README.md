@@ -1,6 +1,6 @@
 # blackjack.io
 A fun 2-player twist on the classic Blackjack (21) game using Socket.io and Express.js.
-Play against a friend over the internet at (this link)[https://blackjack-baz.herokuapp.com/]!
+Play against a friend over the internet at [this link](https://blackjack-baz.herokuapp.com/)!
 
 ![Mid-round](/pictures/mid-round.png)
 ![Post-round](/pictures/post-round.png)
