@@ -41,13 +41,6 @@ function revealOpponent(oppHand){
 	});
 }
 
-// function toggleActionBtns(){
-// 	let buttons = Array.from(document.getElementsByClassName('actions'));
-// 	buttons.forEach(btn => {
-// 		console.log("disbaling????");
-// 		btn.toggleAttribute('disabled');
-// 	});
-// }
 
 function setActionBtns(myTurn){
 	let buttons = Array.from(document.getElementsByClassName('actions'));
