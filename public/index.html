@@ -9,11 +9,12 @@
     <!-- <link rel="stylesheet" type="text/css" href="bootstrap.css"/> -->
     <link rel="stylesheet" type="text/css" href="playing-cards/cards.css" media="screen" />
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div id="first">
-        <input id="writeNick" placeholder="Enter nickname..." autocomplete="off">
+        <input id="writeNick" placeholder="Enter nickname..." autocomplete="off" spellcheck="false">
     </div>
 
     <div id="second">
@@ -24,15 +25,15 @@
     </div>
 
     <div class="bg" id="third">
-        <div id="matchScoreDiv"></div>
-        <div id="scoreDiv"></div>
-        <div class="playingCards simpleCards" id="hand"></div>
-        <div id="turnDiv"></div>
+        <div class="horiCenter" id="matchScoreDiv"></div>
+        <div class="horiCenter" id="scoreDiv"></div>
+        <div class="horiCenter playingCards simpleCards" id="hand"></div>
+        <div class="horiCenter" id="turnDiv"></div>
         <button class="btn actions" onclick="requestHit()">Hit</button>
         <button class="btn actions" onclick="requestStand()">Stand</button>
-        <div class="playingCards simpleCards" id="opponentHand"></div>
-        <div id="gameOverMsg"></div>
-        <button class="btn" id="restart" onclick="readyUp()">Rematch</button>
+        <div class="horiCenter playingCards simpleCards" id="opponentHand"></div>
+        <div class="horiCenter" id="gameOverMsg"></div>
+        <button class="rematchBtn" id="restart" onclick="readyUp()">Rematch</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

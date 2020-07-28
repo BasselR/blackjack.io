@@ -62,9 +62,9 @@ function setActionBtns(myTurn){
 	});
 }
 
-function setTurnText(myTurn){
-	document.getElementById('turnDiv').textContent = myTurn ? "Your turn" : "Opponent's turn";
-}
+// function setTurnText(myTurn){
+// 	document.getElementById('turnDiv').textContent = myTurn ? "Your turn" : "Opponent's turn";
+// }
 
 // Emitters 
 function requestRoom1(){
@@ -73,6 +73,7 @@ function requestRoom1(){
 
 function readyUp(){
 	socket.emit('ready');
+	document.getElementById('restart').classList.add('readied');
 }
 
 function requestHit(){
@@ -87,7 +88,7 @@ function requestStand(){
 
 socket.on('turn update', myTurn => {
 	setActionBtns(myTurn);
-	setTurnText(myTurn);
+	// setTurnText(myTurn);
 });
 
 socket.on('start game', () => {
@@ -106,14 +107,19 @@ socket.on('restart', () => {
 	document.getElementById('gameOverMsg').innerHTML = "";
 	document.getElementById('hand').innerHTML = "";
 	document.getElementById('opponentHand').innerHTML = "";
+	// reset "restart" button visibility and class
+	document.getElementById('restart').style.display = 'none';
+	document.getElementById('restart').classList.remove('readied');
 	oppStood = false;
 });
 
 socket.on('game over', matchScoreObj => {
 	console.log('game over event received...');
-	// formatting for object: matchScoreObj = {matchScore, oppScore}
+	// formatting for object: matchScoreObj = {matchScore, scoreText}
 	document.getElementById('matchScoreDiv').textContent = matchScoreObj.matchScore;
-	scoreDiv.innerHTML = scoreDiv.innerHTML + " | Opponent's score: " + matchScoreObj.oppScore;
+	document.getElementById('scoreDiv').innerHTML = matchScoreObj.scoreText;
+	document.getElementById('restart').style.display = 'inline-block';
+	setActionBtns(false);
 });
 
 socket.on('match score', matchScore => {
@@ -126,6 +132,7 @@ socket.on('tie', opponentHand => {
 	console.log("Receiving tie event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You Tied!";
+	document.getElementById('gameOverMsg').style.color = "blue";
 	document.getElementById('turnDiv').textContent = "";
 });
 
@@ -133,6 +140,7 @@ socket.on('win', opponentHand => {
 	console.log("Receiving win event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You won!";
+	document.getElementById('gameOverMsg').style.color = "green";
 	document.getElementById('turnDiv').textContent = "";
 })
 
@@ -140,6 +148,7 @@ socket.on('lose', opponentHand => {
 	console.log("Receiving lose event!");
 	revealOpponent(opponentHand);
 	document.getElementById('gameOverMsg').innerHTML = "You lost!";
+	document.getElementById('gameOverMsg').style.color = "red";
 	document.getElementById('turnDiv').textContent = "";
 })
 
@@ -156,7 +165,7 @@ socket.on('init turn', myTurn => {
 	// }
 	console.log('receiving init turn event');
 	setActionBtns(myTurn);
-	setTurnText(myTurn);
+	// setTurnText(myTurn);
 });
 
 socket.on('hit', newCard =>{

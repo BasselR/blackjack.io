@@ -7,6 +7,11 @@
     transform: translate(-50%, -50%);
 }
 
+.horiCenter {
+    width: 50%;
+    margin: 0 auto;
+}
+
 #writeNick {
     border: none transparent;
     outline: none;
@@ -23,7 +28,7 @@
 
 #first { text-align: center; }
 #second { display: none; }
-#third { display: none; }
+#third { display: none; font-family: 'Questrial', sans-serif; text-align: center; }
 
 html {
     background: rgb(239,248,249);
@@ -44,10 +49,19 @@ html, body {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 20px;
     margin: 4px 2px;
+    transition-duration: 0.4s;
     cursor: pointer;
-  }
+}
+
+.btn:hover {
+    background-color: #60db64;
+}
+
+.btn:disabled {
+    background-color: #586b59;
+}
 
 /* .bg {
     background-image: url("felt.jpg");
@@ -62,3 +76,48 @@ html, body {
 body {
     height: 100vh;
 } */
+
+.half {background-image: linear-gradient(to right, #4CAF50 0%, #4CAF50 47%, #000 54%, #000 100%)}
+/* .half:hover { background-position: right center; } */
+
+.rematchBtn {
+    background-color: rgb(32, 32, 32);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: none;
+    font-size: 20px;
+    margin: 4px 2px;
+    transition-duration: 0.05s;
+    cursor: pointer;
+    outline: none;
+}
+
+.rematchBtn:hover {
+    background-color: rgb(58, 58, 58);
+}
+
+.readied {
+    background-color: #586b59 !important;
+}
+
+#matchScoreDiv {
+    padding: 50px 50px 10px;
+    font-size: 32px;
+}
+
+#scoreDiv {
+    font-size: 24px;
+    padding: 30px;
+}
+
+.actions {
+    margin: 20px 15px 30px;
+}
+
+#gameOverMsg {
+    padding: 20px;
+    font-size: 20px;
+}

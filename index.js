@@ -305,11 +305,14 @@ function emitMatchScore(socketList){
     let p2 = socketList[1];
     let p1MS = `${p1.nick}: ${p1.matchScore} | ${p2.nick}: ${p2.matchScore}`;
     let p2MS = `${p2.nick}: ${p2.matchScore} | ${p1.nick}: ${p1.matchScore}`;
+
+    let p1S = `Your score: ${p1.score} &nbsp;&nbsp; | &nbsp;&nbsp; Opponent's score: ${p2.score}`;
+    let p2S = `Your score: ${p2.score} &nbsp;&nbsp; | &nbsp;&nbsp; Opponent's score: ${p1.score}`;
     
     // sending client the opponent's hand score
     if(gameOver){
-        io.to(p1.id).emit('game over', {matchScore: p1MS, oppScore: p2.score} );
-        io.to(p2.id).emit('game over', {matchScore: p2MS, oppScore: p1.score} );
+        io.to(p1.id).emit('game over', {matchScore: p1MS, scoreText: p1S} );
+        io.to(p2.id).emit('game over', {matchScore: p2MS, scoreText: p2S} );
     }
     else{
         io.to(p1.id).emit('match score', p1MS);
@@ -360,7 +363,7 @@ function updateScore(player, newCard){
             // Game over - player busted
             console.log(player.id + " busted.");
             player.busted = true;
-            //something like: player.emit('busted')
+            player.emit('busted');
         }
     }
     player.score += newCard.Points;
