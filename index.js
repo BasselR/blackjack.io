@@ -223,7 +223,20 @@ function checkGameOver(socketList){
             console.log("winner id: " + winner.id);
         }
     }
-    if(allStood(socketList)){
+    // If someone busts when the opponent had already been standing
+    else if(anyBust(socketList)){
+        if(anyStood(socketList)){
+            gameOver = true;
+            let winner = socketList.filter(player => !player.busted)[0];
+            console.log("winner id: " + winner.id);
+            emitWinLoss(winner, socketList);
+        }
+        // Someone busts, activating final turn
+        else{
+            lastTurn = true;
+        }
+    }
+    else if(allStood(socketList)){
         let winnerResult = determineWinner(socketList);
         // Both players stand, score tied
         if(winnerResult == "tie"){
@@ -239,19 +252,7 @@ function checkGameOver(socketList){
             emitWinLoss(winner, socketList);
         }
     }
-    // If someone busts when the opponent had already been standing
-    if(anyBust(socketList)){
-        if(anyStood(socketList)){
-            gameOver = true;
-            let winner = socketList.filter(player => !player.busted)[0];
-            console.log("winner id: " + winner.id);
-            emitWinLoss(winner, socketList);
-        }
-        // Someone busts, activating final turn
-        else{
-            lastTurn = true;
-        }
-    }
+
 }
 
 // For determining the winner of a showdown

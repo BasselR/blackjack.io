@@ -13,8 +13,8 @@ constantly keeping track of how many big aces a player's hand contains, and dedu
 
 
 Regarding game end:
-(x) If someone stands, the other player can keep hitting until they stand or bust.
-(x) If someone hits 21, they automatically stand.
-(x) If both players stand, game ends and card showdown occurs.
-(x) If someone busts, they appear to stand. Opponent is given a final turn. If they bust, tie game. If not, they win.
-(x) Support rematch (within room) and switch who goes first each game. Keep tally of score between room's players.
+[x] If someone stands, the other player can keep hitting until they stand or bust.
+[x] If both players stand, game ends and card showdown occurs.
+[x] If someone busts, they appear to stand. Opponent is given a final turn. If they bust, tie game. If not, they win.
+[x] Support rematch (within room) and switch who goes first each game. Keep tally of score between room's players.
+
