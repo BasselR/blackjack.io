@@ -113,3 +113,9 @@ html, body {
     padding: 20px;
     font-size: 20px;
 }
+
+#replayIcon {
+    padding: 0px 20px;
+    /* color: #35654d; */
+    color: #4CAF50;
+}

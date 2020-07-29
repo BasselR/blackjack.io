@@ -20,7 +20,7 @@ Regarding game end:
 
 TODO:
 
-[ ] Make rematch button more clearly show if opponent is waiting for you
+[x] Make rematch button more clearly show if opponent is waiting for you
 [ ] Clean up unnecessary code, minimize event emissions
 [ ] Add support for multiple rooms
 [ ] Add chat window for chat messages and event log

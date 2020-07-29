@@ -96,6 +96,8 @@ io.on('connection', socket => {
     socket.on('ready', () => {
         console.log(socket.id + " is readying up!");
         socket.ready = true;
+        io.to(socket.id).emit('you ready');
+        io.to(getOpponent(socket, room1Players).id).emit('opponent ready');
         if(checkBothReady(room1Players)){
             console.log("Both players are ready. Game restarting...");
             io.to('room 1').emit('restart');

@@ -4,6 +4,8 @@ console.log("beans");
 var matchScore = 0;
 var nickname = "";
 var oppStood = false;
+var youReady = false;
+var oppReady = false;
 
 const myInput = document.getElementById("writeNick");
 $('#writeNick').focus();
@@ -104,6 +106,24 @@ socket.on('restart', () => {
 	document.getElementById('restart').style.display = 'none';
 	document.getElementById('restart').classList.remove('readied');
 	oppStood = false;
+	youReady = false;
+	oppReady = false;
+});
+
+socket.on('you ready', () => {
+	if(!oppReady){
+		let matchScoreDiv = document.getElementById('matchScoreDiv');
+		matchScoreDiv.innerHTML = '<i id="replayIcon" class="fas fa-redo-alt"></i>' + matchScoreDiv.innerHTML;
+	}
+	youReady = true;
+});
+
+socket.on('opponent ready', () => {
+	if(!youReady){
+		let matchScoreDiv = document.getElementById('matchScoreDiv');
+		matchScoreDiv.innerHTML += '<i id="replayIcon" class="fas fa-redo-alt"></i>';
+	}
+	oppReady = true;
 });
 
 socket.on('game over', matchScoreObj => {
