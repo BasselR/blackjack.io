@@ -18,3 +18,10 @@ Regarding game end:
 [x] If someone busts, they appear to stand. Opponent is given a final turn. If they bust, tie game. If not, they win.
 [x] Support rematch (within room) and switch who goes first each game. Keep tally of score between room's players.
 
+TODO:
+
+[ ] Make rematch button more clearly show if opponent is waiting for you
+[ ] Clean up unnecessary code, minimize event emissions
+[ ] Add support for multiple rooms
+[ ] Add chat window for chat messages and event log
+[ ] Add database for lifetime leaderboard
