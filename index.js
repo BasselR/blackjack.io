@@ -9,114 +9,126 @@ const Deck = require('./DeckModule').Deck;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-var players = [];
-var room1Players = [];
-var room1Population = 0;
-var gameDeck;
-var p1Turn = true;
-var p1Bool = true;
-var lastTurn = false;
-var gameOver = false;
+var allPlayers = {};
 
-setInterval(function(){
-    console.log(room1Population);
-}, 3000);
+// setInterval(function(){
+//     let myRoomName = 'room 1';
+//     let room = io.sockets.adapter.rooms[myRoomName];
+//     console.log(room.length);
+// }, 1000);
 
 io.on('connection', socket => {
     console.log(socket.id + " joined.");
-    //console.log(players);
-    players.push(socket.id);
-    console.log(players);
+    allPlayers[socket.id] = socket;
+
     // Attempt to join room 1 (if there is space)
     socket.on('set nickname', nickname => {
+        console.log(`Nickname: ${socket.id} -> ${nickname}`);
         socket.nick = nickname;
     });
-    socket.on('request room 1', () => {
-        console.log(socket.id + " requesting to join room 1.");
-        if(room1Population < 2){
-            socket.join('room 1', () => {
-                console.log(socket.id + " has successfully joined room 1.");
-                console.log("Room 1 object:");
-                console.log(io.sockets.adapter.rooms['room 1']);
-                room1Population = io.sockets.adapter.rooms['room 1'].length;
-                // Add player to room list (assuming they're not already in it)
-                if(inRoom(socket, room1Players)){
-                    console.log("Duplicate room-join attempt by " + socket.id);
+    socket.on('request room', roomID => {
+        console.log(`${socket.id} requesting to join room ${roomID}.`);
+        let roomName = 'room ' + roomID;
+        let room = getRoom(roomID);
+        if(room && room.roomPlayers && inRoom(socket, room.roomPlayers)){
+            console.log("Duplicate room-join attempt by " + socket.id);
+        }
+        else if(!room || room.length < 2){
+            socket.join(roomName, () => {
+                room = getRoom(roomID);
+                console.log(`${socket.id} has successfully joined ${roomName}.`);
+                socket.room = roomID;
+
+                if(!room.roomPlayers){
+                    room.roomPlayers = [];
                 }
-                else{
-                    socket.matchScore = 0;
-                    room1Players.push(socket);
-                }
-                socket.emit('join room 1');
-                if(room1Population == 2){
+
+                socket.matchScore = 0;
+                room.roomPlayers.push(socket);
+
+                socket.emit(`join ${roomName}`);
+                if(room.length == 2){
                     // Second player has successfully joined, start this room's game
-                    io.to('room 1').emit('start game');
-                    initGame(room1Players);
+                    io.to(roomName).emit('start game');
+                    // Initialize p1Bool
+                    room.p1Bool = true;
+                    initGame(roomID);
                 }
             });
         }
         else{
-            console.log(socket.id + " cannot join room 1 (full).");
+            console.log(socket.id + ` cannot join ${roomName} (full).`);
             socket.emit('room full');
         }
     });
     // Hit
     socket.on('hit', () => {
-        if(socket.p1 == p1Turn){
+        let room = getRoom(socket.room);
+        if(socket.p1 == room.p1Turn){
             hit(socket);
-            if(!getOpponent(socket, room1Players).stood){
-                p1Turn = !p1Turn;
+            if(!getOpponent(socket, room.roomPlayers).stood){
+                room.p1Turn = !room.p1Turn;
             }
-            updateTurn(room1Players);
+            updateTurn(socket.room);
         }
-        // else if(socket.stood){
-        //     console.log(socket.id + " tried to hit but they've already stood!");
-        // }
         else{
             console.log(socket.nick + " tried to hit but it's not their turn.");
         }
-        checkGameOver(room1Players);
+        checkGameOver(socket.room);
     });
     // Stand
     socket.on('stand', () => {
-        if(socket.p1 == p1Turn){
+        let room = getRoom(socket.room);
+        // let roomName = 'room ' + socket.room;
+        // let room = io.sockets.adapter.rooms[roomName];
+        if(socket.p1 == room.p1Turn){
             stand(socket);
-            p1Turn = !p1Turn;
-            updateTurn(room1Players);
+            room.p1Turn = !room.p1Turn;
+            updateTurn(socket.room);
         }
-        // else if(socket.stood){
-        //     console.log(socket.id + " tried to hit but they've already stood!");
-        // }
         else{
             console.log(socket.nick + " tried to stand but it's not their turn.");
         }
-        checkGameOver(room1Players);
+        checkGameOver(socket.room);
     });
     // Ready up (for restart)
     socket.on('ready', () => {
+        let roomName = 'room ' + socket.room;
+        let room = io.sockets.adapter.rooms[roomName];
         console.log(socket.id + " is readying up!");
         socket.ready = true;
         io.to(socket.id).emit('you ready');
-        io.to(getOpponent(socket, room1Players).id).emit('opponent ready');
-        if(checkBothReady(room1Players)){
+        io.to(getOpponent(socket, room.roomPlayers).id).emit('opponent ready');
+        if(checkBothReady(room.roomPlayers)){
             console.log("Both players are ready. Game restarting...");
-            io.to('room 1').emit('restart');
-            initGame(room1Players);
+            io.to(roomName).emit('restart');
+            // sending room ID so initGame() can access the room object
+            initGame(socket.room);
         }
     });
     // Disconnect
     socket.on('disconnect', discMsg => {
         console.log(socket.id + " disconnected.");
+        delete allPlayers[socket.id];
+        let roomName = 'room ' + socket.room;
+        let room = io.sockets.adapter.rooms[roomName];
         // Remove the disconnected player from room 1 players and update population
-        room1Players = room1Players.filter(player => player.id == socket.id);
-        room1Population = room1Players.length;
+        room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
+        // NOT ADJUSTING ROOM POPULATION AFTER DISCONNECT ....
+        //room1Population = room.roomPlayers.length;
     });
 });
 
+function getRoom(roomID){
+    return io.sockets.adapter.rooms[`room ${roomID}`];
+}
+
 // Updates the client about the state of their turn. Happens every time someone hits / stands
-function updateTurn(socketList){
+function updateTurn(roomID){
+    let room = getRoom(roomID);
+    let socketList = room.roomPlayers;
     for(var i = 0; i < socketList.length; i++){
-        io.to(socketList[i].id).emit('turn update', socketList[i].p1 == p1Turn);
+        io.to(socketList[i].id).emit('turn update', socketList[i].p1 == room.p1Turn);
     }
 }
 
@@ -131,13 +143,17 @@ function checkBothReady(socketList){
 }
 
 // Takes in an array of players (sockets)
-function initGame(players){
-    console.log("Init game...");
-    gameDeck = new Deck();
-    gameDeck.shuffle();
-    lastTurn = false;
-    p1Turn = true;
-    gameOver = false;
+function initGame(roomID){
+    console.log(`Initializing game for room ${roomID}...`);
+    let roomName = 'room ' + roomID;
+    let room = io.sockets.adapter.rooms[roomName];
+    room.gameDeck = new Deck();
+    room.gameDeck.shuffle();
+    room.lastTurn = false;
+    room.p1Turn = true;
+    room.gameOver = false;
+
+    let players = room.roomPlayers;
 
     players.forEach((player) => {
         player.score = 0;
@@ -151,15 +167,15 @@ function initGame(players){
     });
 
     // These 3 lines try to alternate who starts
-    p1Bool = !p1Bool;
-    players[0].p1 = p1Bool;
-    players[1].p1 = !p1Bool;
+    room.p1Bool = !room.p1Bool;
+    players[0].p1 = room.p1Bool;
+    players[1].p1 = !room.p1Bool;
 
     // Tell the players who's turn it is to start off
     players[0].emit('init turn', players[0].p1);
     players[1].emit('init turn', players[1].p1);
 
-    emitMatchScore(players);
+    emitMatchScore(roomID);
 }
 
 function getOpponent(player, socketList){
@@ -207,54 +223,59 @@ function allBust(socketList){
     return true;
 }
 
-function checkGameOver(socketList){
-    console.log("checking game over, last turn: " + lastTurn);
-    if(lastTurn){
+// Checks if game is over (which 'game over' case is logged)
+function checkGameOver(roomID){
+    let roomName = 'room ' + roomID;
+    let room = io.sockets.adapter.rooms[roomName];
+    let socketList = room.roomPlayers;
+    console.log("checking game over, last turn: " + room.lastTurn);
+    if(room.lastTurn){
         // Both players bust
         if(allBust(socketList)){
-            console.log("last turn true, all bust true");
-            gameOver = true;
-            emitTie(socketList);
+            console.log("Game over - case 1.");
+            room.gameOver = true;
+            emitTie(roomID);
         }
         // One player busts, other player gets last turn and doesn't bust
         else{
-            console.log("last turn true, all bust false");
-            gameOver = true;
+            console.log("Game over - case 2.");
             let winner = socketList.filter(player => !player.busted)[0];
-            emitWinLoss(winner, socketList);
+            room.gameOver = true;
+            emitWinLoss(winner, roomID);
             console.log("winner id: " + winner.id);
         }
     }
     // If someone busts when the opponent had already been standing
     else if(anyBust(socketList)){
         if(anyStood(socketList)){
-            gameOver = true;
+            room.gameOver = true;
             let winner = socketList.filter(player => !player.busted)[0];
+            console.log("Game over - case 3.");
             console.log("winner id: " + winner.id);
-            emitWinLoss(winner, socketList);
+            emitWinLoss(winner, roomID);
         }
         // Someone busts, activating final turn
         else{
-            lastTurn = true;
+            room.lastTurn = true;
         }
     }
     else if(allStood(socketList)){
         let winnerResult = determineWinner(socketList);
         // Both players stand, score tied
         if(winnerResult == "tie"){
-            gameOver = true;
-            emitTie(socketList);
+            console.log("Game over - case 4.");
+            emitTie(roomID);
         }
         // Both players stand, showdown
         else if(typeof(winnerResult) == 'number'){
-            //console.log("winner type is number, winner id: " + winner.id);
-            gameOver = true;
             let winnerIndex = winnerResult;
             let winner = socketList[winnerIndex];
-            emitWinLoss(winner, socketList);
+            console.log("Game over - case 5.");
+            console.log("winner id: " + winner.id);
+            emitWinLoss(winner, roomID);
         }
+        room.gameOver = true;
     }
-
 }
 
 // For determining the winner of a showdown
@@ -283,37 +304,50 @@ function determineWinner(socketList){
         }
     }
     console.log("Winner: " + socketList[currentWinner].id);
+    // Returns winner's index (with respect to socketList array)
     return currentWinner;
 }
 
-function emitTie(socketList){
+function emitTie(roomID){
+    console.log("emitTie event fired");
+    let room = getRoom(roomID);
+    let socketList = room.roomPlayers;
     socketList[0].matchScore += 0.5;
     socketList[1].matchScore += 0.5;
     io.to(socketList[0].id).emit('tie', socketList[1].hand);
     io.to(socketList[1].id).emit('tie', socketList[0].hand);
-    emitMatchScore(socketList);
+    emitMatchScore(roomID);
 }
 
-function emitWinLoss(winner, socketList){
+function emitWinLoss(winner, roomID){
+    console.log("emitWinLoss event fired");
+    let room = getRoom(roomID);
+    let socketList = room.roomPlayers;
     winner.matchScore++;
     let loser = getOpponent(winner, socketList);
     io.to(winner.id).emit('win', loser.hand);
     io.to(loser.id).emit('lose', winner.hand);
-    emitMatchScore(socketList);
+    emitMatchScore(roomID);
 }
 
-function emitMatchScore(socketList){
+function emitMatchScore(roomID){
+    console.log("emitMatchScore event fired");
+    let room = getRoom(roomID);
+    let socketList = room.roomPlayers;
     // these dont actually represent 'p1' / who goes first, they're just placeholder names
     let p1 = socketList[0];
     let p2 = socketList[1];
+
     let p1MS = `${p1.nick}: ${p1.matchScore} | ${p2.nick}: ${p2.matchScore}`;
     let p2MS = `${p2.nick}: ${p2.matchScore} | ${p1.nick}: ${p1.matchScore}`;
 
     let p1S = `Your score: ${p1.score} &nbsp;&nbsp; | &nbsp;&nbsp; Opponent's score: ${p2.score}`;
     let p2S = `Your score: ${p2.score} &nbsp;&nbsp; | &nbsp;&nbsp; Opponent's score: ${p1.score}`;
     
+    console.log(`room.gameOver: ${room.gameOver}`);
+    console.log(`p1.id: ${p1.id}`);
     // sending client the opponent's hand score
-    if(gameOver){
+    if(room.gameOver){
         io.to(p1.id).emit('game over', {matchScore: p1MS, scoreText: p1S} );
         io.to(p2.id).emit('game over', {matchScore: p2MS, scoreText: p2S} );
     }
@@ -325,23 +359,26 @@ function emitMatchScore(socketList){
 
 function hit(player, numOfCards = 1){
     // deal a card to player
+    let roomName = 'room ' + player.room;
+    let room = io.sockets.adapter.rooms[roomName];
     for(var i = 0; i < numOfCards; i++){
         console.log("Card hit...");
-        let newCard = gameDeck.pop();
+        let newCard = room.gameDeck.pop();
         // with updatePoints, player.hand.push(newCard) might be unneeded (if we just update points instead of keeping track of a hand)
         player.hand.push(newCard);
         updateScore(player, newCard);
         // Emit hit event to client, emit opponent hit event to other players in room 1 (there's only 1 tho)
         player.emit('hit', newCard);
-        player.to('room 1').emit('opponent hit');
+        player.to(roomName).emit('opponent hit');
     }
 }
 
 function stand(player){
+    let roomName = 'room ' + player.room;
     player.stood = true;
     console.log(player.id + " stands.")
     player.emit('stand');
-    player.to('room 1').emit('opponent stand');
+    player.to(roomName).emit('opponent stand');
 }
 
 function updateScore(player, newCard){
@@ -375,6 +412,7 @@ function updateScore(player, newCard){
 
 // Returns whether or not a player is in a 'room' (list of sockets)
 function inRoom(player, socketList){
+    //console.log("inRoom --- socketList.length: " + socketList.length);
     for(var i = 0; i < socketList.length; i++){
         if(socketList[i].id == player.id){
             return true;

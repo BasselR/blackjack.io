@@ -64,7 +64,6 @@ html, body {
     background-color: #586b59;
 }
 
-
 .half {background-image: linear-gradient(to right, #4CAF50 0%, #4CAF50 47%, #000 54%, #000 100%)}
 /* .half:hover { background-position: right center; } */
 
@@ -118,4 +117,8 @@ html, body {
     padding: 0px 20px;
     /* color: #35654d; */
     color: #4CAF50;
+}
+
+.roomCount {
+    margin: 5px 0px 0px;
 }

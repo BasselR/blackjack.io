@@ -63,7 +63,8 @@ function setActionBtns(myTurn){
 
 // Emitters 
 function requestRoom1(){
-	socket.emit('request room 1');
+	// pass room ID as event parameter
+	socket.emit('request room', 1);
 }
 
 function readyUp(){
