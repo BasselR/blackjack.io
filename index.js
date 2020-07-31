@@ -10,16 +10,13 @@ const Deck = require('./DeckModule').Deck;
 app.use(express.static(path.join(__dirname, 'public')));
 
 var allPlayers = {};
-
-// setInterval(function(){
-//     let myRoomName = 'room 1';
-//     let room = io.sockets.adapter.rooms[myRoomName];
-//     console.log(room.length);
-// }, 1000);
+const numOfRooms = 3;
 
 io.on('connection', socket => {
     console.log(socket.id + " joined.");
     allPlayers[socket.id] = socket;
+
+    emitRoomCount();
 
     // Attempt to join room 1 (if there is space)
     socket.on('set nickname', nickname => {
@@ -39,6 +36,17 @@ io.on('connection', socket => {
                 console.log(`${socket.id} has successfully joined ${roomName}.`);
                 socket.room = roomID;
 
+                console.log('forloop rrom length: ' + Object.keys(io.sockets.adapter.rooms).length);
+                for(var i = 1; i <= Object.keys(io.sockets.adapter.rooms).length; i++){
+                    let roomName = 'room ' + i;
+                    console.log('forloop roomID: ' + roomID);
+                    if(i != roomID){
+                        socket.leave(roomName, () => {
+                            console.log(`${socket.id} has successfully left ${roomName}.`);
+                        });
+                    }
+                }
+
                 if(!room.roomPlayers){
                     room.roomPlayers = [];
                 }
@@ -46,7 +54,11 @@ io.on('connection', socket => {
                 socket.matchScore = 0;
                 room.roomPlayers.push(socket);
 
-                socket.emit(`join ${roomName}`);
+                // socket.emit(`join ${roomName}`);
+                socket.emit('join room', roomID);
+                
+                emitRoomCount();
+
                 if(room.length == 2){
                     // Second player has successfully joined, start this room's game
                     io.to(roomName).emit('start game');
@@ -110,12 +122,12 @@ io.on('connection', socket => {
     socket.on('disconnect', discMsg => {
         console.log(socket.id + " disconnected.");
         delete allPlayers[socket.id];
-        let roomName = 'room ' + socket.room;
-        let room = io.sockets.adapter.rooms[roomName];
+        let room = getRoom(socket.room);
         // Remove the disconnected player from room 1 players and update population
-        room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
-        // NOT ADJUSTING ROOM POPULATION AFTER DISCONNECT ....
-        //room1Population = room.roomPlayers.length;
+        if(room && room.roomPlayers){
+            room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
+        }
+        emitRoomCount();
     });
 });
 
@@ -354,6 +366,25 @@ function emitMatchScore(roomID){
     else{
         io.to(p1.id).emit('match score', p1MS);
         io.to(p2.id).emit('match score', p2MS);
+    }
+}
+
+function emitRoomCount(roomID = null){
+    if(!roomID){ 
+        //console.log("EMIT ROOM COUNT ROOMS LNGTH: " + Object.keys(io.sockets.adapter.rooms).length);
+        for(var i = 1; i <= numOfRooms; i++){
+            let room = getRoom(i);
+            if(room && room.roomPlayers){
+                io.emit('room count', { roomID: i, roomCount: room.length });
+            }
+            else{
+                io.emit('room count', { roomID: i, roomCount: 0 });
+            }
+        }
+    }
+    else{
+        let room = getRoom(roomID);
+        io.emit('room count', { roomID, roomCount: room.length });
     }
 }
 

@@ -20,8 +20,8 @@ Regarding game end:
 TODO:
 
 [x] Make rematch button more clearly show if opponent is waiting for you
-[ ] Make it clear how many people are in a room
-[ ] Add support for multiple rooms
+[x] Make it clear how many people are in a room
+[x] Add support for multiple rooms
 [ ] Clean up unnecessary code, minimize event emissions
 [ ] Add chat window for chat messages and event log
 [ ] Add database for lifetime leaderboard

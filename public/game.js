@@ -62,9 +62,10 @@ function setActionBtns(myTurn){
 // }
 
 // Emitters 
-function requestRoom1(){
+function requestRoom(ele){
 	// pass room ID as event parameter
-	socket.emit('request room', 1);
+	let roomID = ele.id;
+	socket.emit('request room', roomID);
 }
 
 function readyUp(){
@@ -166,8 +167,8 @@ socket.on('lose', opponentHand => {
 	document.getElementById('turnDiv').textContent = "";
 })
 
-socket.on('join room 1', () => {
-	console.log("You have successfully joined room 1.");
+socket.on('join room', roomID => {
+	console.log(`You have successfully joined room ${roomID}.`);
 });
 
 socket.on('init turn', myTurn => {
@@ -233,4 +234,12 @@ socket.on('update score', score =>{
 	// else{
 	// 	scoreDiv.innerHTML = "Your score: " + scores.yourScore;
 	// }
+});
+
+// bundle has properties: roomID, roomCount
+socket.on('room count', bundle => {
+	let roomID = bundle.roomID;
+	let roomCount = bundle.roomCount;
+	console.log('rc roomID: ' + roomID);
+	document.getElementById(`room${roomID}Count`).textContent = `${roomCount} / 2`;
 });
