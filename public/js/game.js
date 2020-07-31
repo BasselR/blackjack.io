@@ -21,8 +21,11 @@ myInput.addEventListener("keyup", function(event) {
 function setNick(){
 	nickname = document.getElementById('writeNick').value;
 	socket.emit('set nickname', nickname);
-	$('#first').fadeOut();
-	$('#second').show();
+	$('#first').fadeOut(400, () => {
+		console.log("done fading out...");
+	});
+	console.log("fadeout???");
+	$('#second').fadeIn(400);
 }
 
 function revealOpponent(oppHand){
@@ -65,6 +68,7 @@ function setActionBtns(myTurn){
 function requestRoom(ele){
 	// pass room ID as event parameter
 	let roomID = ele.id;
+	document.getElementById('lobbyMsg').textContent = "";
 	socket.emit('request room', roomID);
 }
 

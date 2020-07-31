@@ -27,7 +27,12 @@
 }
 
 #first { text-align: center; }
-#second { display: none; }
+#second { 
+    display: none; 
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
 #third { display: none; font-family: 'Questrial', sans-serif; text-align: center; }
 
 html {
@@ -121,4 +126,13 @@ html, body {
 
 .roomCount {
     margin: 5px 0px 0px;
+}
+
+#lobbyMsg{
+    font-family: 'Questrial', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    top: 70%;
 }

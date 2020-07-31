@@ -276,6 +276,7 @@ function checkGameOver(roomID){
         // Both players stand, score tied
         if(winnerResult == "tie"){
             console.log("Game over - case 4.");
+            room.gameOver = true;
             emitTie(roomID);
         }
         // Both players stand, showdown
@@ -284,9 +285,9 @@ function checkGameOver(roomID){
             let winner = socketList[winnerIndex];
             console.log("Game over - case 5.");
             console.log("winner id: " + winner.id);
+            room.gameOver = true;
             emitWinLoss(winner, roomID);
         }
-        room.gameOver = true;
     }
 }
 
@@ -452,7 +453,7 @@ function inRoom(player, socketList){
     return false;
 }
 
-const PORT = process.env.PORT || 2000;
+const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
     console.log("Listening on port %d", PORT);
