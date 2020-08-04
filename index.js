@@ -3,6 +3,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const path = require('path');
+const connectDB = require('./db/MongoConnect');
 
 // DeckModule's other exports are .values, .suits and .points
 const Deck = require('./DeckModule').Deck;
@@ -11,6 +12,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var allPlayers = {};
 const numOfRooms = 3;
+
+connectDB();
 
 io.on('connection', socket => {
     console.log(socket.id + " joined.");
