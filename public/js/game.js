@@ -85,7 +85,40 @@ function requestStand(){
 	socket.emit('stand');
 }
 
+function backLobby(){
+	$('#second').fadeOut();
+	$('#first').fadeIn();
+	document.getElementById('writeNick').value = "";
+	$('#writeNick').focus();
+}
+
+function backLeaderboard(){
+	$('#leaderboard').fadeOut();
+	$('#second').fadeIn();
+	document.getElementById('scoreList').innerHTML = "";
+}
+
+function requestLeaderboard(){
+	socket.emit('request leaderboard');
+}
+
 // Receivers
+
+socket.on('leaderboard', entries => {
+	// create html ordered list element from input, add it to div
+	console.log(entries);
+	let leaderboardDiv = document.getElementById('scoreList');
+	let ol = document.createElement("ol");
+	entries.forEach(entry => {
+		let li = document.createElement("li");
+		li.textContent = `${entry.name} - ${entry.score}`;
+		li.className = "entry";
+		ol.appendChild(li);
+	});
+	leaderboardDiv.appendChild(ol);
+	$('#second').fadeOut();
+	$('#leaderboard').fadeIn();
+});
 
 socket.on('turn update', myTurn => {
 	setActionBtns(myTurn);

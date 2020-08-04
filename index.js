@@ -3,7 +3,9 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const path = require('path');
+const mongoose = require('mongoose');
 const connectDB = require('./db/MongoConnect');
+const Score = require('./models/ScoreSchema');
 
 // DeckModule's other exports are .values, .suits and .points
 const Deck = require('./DeckModule').Deck;
@@ -121,6 +123,21 @@ io.on('connection', socket => {
             initGame(socket.room);
         }
     });
+    // Request leaderboard
+    socket.on('request leaderboard', () => {
+        Score.find().sort({score: -1}).limit(5).exec( 
+            function(err, scores) {
+                if(err){
+                    console.log("Error while retrieving leaderboard: " + err);
+                }
+                else{
+                    console.log("Successfully retrieved leaderboard!");
+                    socket.emit('leaderboard', scores);
+                }
+            }
+        );
+    });
+
     // Disconnect
     socket.on('disconnect', discMsg => {
         console.log(socket.id + " disconnected.");

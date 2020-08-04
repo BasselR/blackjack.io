@@ -34,6 +34,7 @@
     position: relative;
 }
 #third { display: none; font-family: 'Questrial', sans-serif; text-align: center; }
+#leaderboard { display: none; font-family: 'Questrial', sans-serif; }
 
 html {
     background: rgb(239,248,249);
@@ -49,6 +50,7 @@ html, body {
 .btn {
     background-color: #4CAF50;
     border: none;
+    outline: none;
     color: white;
     padding: 15px 32px;
     text-align: center;
@@ -56,7 +58,7 @@ html, body {
     display: inline-block;
     font-size: 20px;
     margin: 4px 2px;
-    transition-duration: 0.4s;
+    transition-duration: 0.25s;
     cursor: pointer;
     border-radius: 4px;
 }
@@ -135,4 +137,51 @@ html, body {
     text-align: center;
     position: relative;
     top: 70%;
+}
+
+.back-arrow {
+    transition-duration: 0.25s;
+    cursor: pointer;
+    color: #4CAF50;
+}
+
+/* unvisited link */
+.back-arrow:link {
+  color: #4CAF50;
+}
+
+/* visited link */
+.back-arrow:visited {
+  color: #4CAF50;
+}
+
+/* mouse over link */
+.back-arrow:hover {
+  color: #60db64;
+}
+
+.back-img {
+    margin: 1em;
+}
+
+#viewLeaderboard {
+    margin-top: 10em;
+}
+
+#scoreList {
+    font-size: larger;
+}
+
+#leaderboardText {
+    text-align: center;
+    font-size: x-large;
+    margin: 0;
+    /* position: absolute;
+    top: 25%;
+    -ms-transform: translate(-25%, 0%);
+    transform: translate(-25%, 0%); */
+}
+
+.entry {
+    padding: 0.25em;
 }

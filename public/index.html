@@ -23,6 +23,7 @@
     </div>
 
     <div id="second">
+        <a class="back-arrow" onclick="backLobby()"><i class="back-img fas fa-arrow-left fa-3x"></i></a>
         <div class="center initial">
             <button class="btn roomBtn" id="1" onclick="requestRoom(this)">Join Room 1<br>
                 <p class="roomCount" id="room1Count">0 / 2</p>
@@ -35,6 +36,7 @@
             </button>
         </div>
         <div class="initial" id="lobbyMsg"></div>
+        <div class="center" id="viewLeaderboard"><button onclick="requestLeaderboard()" class="btn">View Leaderboard</button></div>
     </div>
 
     <div id="third">
@@ -47,6 +49,12 @@
         <div class="horiCenter playingCards simpleCards" id="opponentHand"></div>
         <div class="horiCenter" id="gameOverMsg"></div>
         <button class="rematchBtn" id="restart" onclick="readyUp()">Rematch</button>
+    </div>
+
+    <div id="leaderboard">
+        <a class="back-arrow" onclick="backLeaderboard()"><i class="back-img fas fa-arrow-left fa-3x"></i></a>
+        <div id="leaderboardText">Top 5 - Total Rounds Won:</div>
+        <div class="center" id="scoreList"></div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
