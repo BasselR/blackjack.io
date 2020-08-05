@@ -185,3 +185,26 @@ html, body {
 .entry {
     padding: 0.25em;
 }
+
+.hublink {
+    /* margin: 3vh 90vw; */
+    position: absolute;
+    top: 2em;
+    right: 2em;
+    /* text-align: right; */
+}
+    
+.gitlink {
+    cursor: pointer;
+    color: #000;
+}
+
+/* unvisited link */
+.gitlink:link {
+    color: #000;
+}
+
+/* visited link */
+.gitlink:visited {
+    color: #000;
+}

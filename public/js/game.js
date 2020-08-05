@@ -21,11 +21,13 @@ myInput.addEventListener("keyup", function(event) {
 function setNick(){
 	nickname = document.getElementById('writeNick').value;
 	socket.emit('set nickname', nickname);
-	$('#first').fadeOut(400, () => {
-		console.log("done fading out...");
-	});
-	console.log("fadeout???");
-	$('#second').fadeIn(400);
+	// $('#first').fadeOut(400, () => {
+	// 	console.log("done fading out...");
+	// });
+	// console.log("fadeout???");
+	// $('#second').fadeIn(400);
+	$('#first').hide();
+	$('#second').show();
 }
 
 function revealOpponent(oppHand){
@@ -86,8 +88,10 @@ function requestStand(){
 }
 
 function backLobby(){
-	$('#second').fadeOut();
-	$('#first').fadeIn();
+	// $('#second').fadeOut();
+	// $('#first').fadeIn();
+	$('#second').hide();
+	$('#first').show();
 	document.getElementById('writeNick').value = "";
 	$('#writeNick').focus();
 }
