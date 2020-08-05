@@ -345,11 +345,16 @@ function emitTie(roomID){
     console.log("emitTie event fired");
     let room = getRoom(roomID);
     let socketList = room.roomPlayers;
-    socketList[0].matchScore += 0.5;
-    socketList[1].matchScore += 0.5;
-    io.to(socketList[0].id).emit('tie', socketList[1].hand);
-    io.to(socketList[1].id).emit('tie', socketList[0].hand);
+    // these dont actually represent 'p1' / who goes first, they're just placeholder names
+    let p1 = socketList[0];
+    let p2 = socketList[1];
+    p1.matchScore += 0.5;
+    p2.matchScore += 0.5;
+    io.to(p1.id).emit('tie', p2.hand);
+    io.to(p2.id).emit('tie', p1.hand);
     emitMatchScore(roomID);
+    updateDatabase(p1, 0.5);
+    updateDatabase(p2, 0.5);
 }
 
 function emitWinLoss(winner, roomID){
@@ -361,6 +366,7 @@ function emitWinLoss(winner, roomID){
     io.to(winner.id).emit('win', loser.hand);
     io.to(loser.id).emit('lose', winner.hand);
     emitMatchScore(roomID);
+    updateDatabase(winner, 1);
 }
 
 function emitMatchScore(roomID){
@@ -471,6 +477,20 @@ function inRoom(player, socketList){
         }
     }
     return false;
+}
+
+function updateDatabase(player, scoreIncrement){
+    let query = {name: player.nick};
+    let options = {new: true, upsert: true, setDefaultsOnInsert: true};
+
+    Score.findOneAndUpdate(query, {$inc : {'score' : scoreIncrement}}, options, function(err, results){
+        if(err){
+            console.log("Error during findOneAndUpdate: " + err);
+        }
+        else{
+            console.log("findOneAndUpdate successful: " + results);
+        }
+    });
 }
 
 const PORT = process.env.PORT || 3000;

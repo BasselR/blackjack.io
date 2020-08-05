@@ -93,8 +93,8 @@ function backLobby(){
 }
 
 function backLeaderboard(){
-	$('#leaderboard').fadeOut();
-	$('#second').fadeIn();
+	$('#leaderboard').hide();
+	$('#second').show();
 	document.getElementById('scoreList').innerHTML = "";
 }
 
@@ -116,8 +116,8 @@ socket.on('leaderboard', entries => {
 		ol.appendChild(li);
 	});
 	leaderboardDiv.appendChild(ol);
-	$('#second').fadeOut();
-	$('#leaderboard').fadeIn();
+	$('#second').hide();
+	$('#leaderboard').show();
 });
 
 socket.on('turn update', myTurn => {
