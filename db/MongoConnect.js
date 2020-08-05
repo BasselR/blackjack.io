@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const MongoURI = require('../secrets').MongoURI;
 
-let mongoURI = process.env.mongoURI || MongoURI;
+let mongoURI = process.env.mongoURI || require('../secrets').MongoURI;
 console.log("chosen mongouri: " + mongoURI);
 
 const connectDB = async () => {
