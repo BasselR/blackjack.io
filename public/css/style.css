@@ -174,7 +174,7 @@ html, body {
 
 #leaderboardText {
     text-align: center;
-    font-size: x-large;
+    font-size: 2.5em;
     margin: 0;
     /* position: absolute;
     top: 25%;
@@ -184,6 +184,11 @@ html, body {
 
 .entry {
     padding: 0.25em;
+}
+
+.highlight {
+    color: #196fd1;
+    font-weight: bold;
 }
 
 .hublink {

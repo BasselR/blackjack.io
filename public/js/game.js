@@ -117,6 +117,9 @@ socket.on('leaderboard', entries => {
 		let li = document.createElement("li");
 		li.textContent = `${entry.name} - ${entry.score}`;
 		li.className = "entry";
+		if(entry.name == nickname){
+			li.classList.add("highlight");
+		}
 		ol.appendChild(li);
 	});
 	leaderboardDiv.appendChild(ol);
