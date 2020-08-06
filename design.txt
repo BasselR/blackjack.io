@@ -22,6 +22,10 @@ TODO:
 [x] Make rematch button more clearly show if opponent is waiting for you
 [x] Make it clear how many people are in a room
 [x] Add support for multiple rooms
+[x] Add database for lifetime leaderboard
+[x] Fix multiple rematch bug
 [ ] Clean up unnecessary code, minimize event emissions
 [ ] Add chat window for chat messages and event log
-[ ] Add database for lifetime leaderboard
+[ ] Better room display
+[ ] Fix shifting when rematch (top text shift and bottom shift)
+[ ] Kick other player out of lobby if one player leaves (or add 'waiting for other player')

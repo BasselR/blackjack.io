@@ -1,6 +1,7 @@
 const socket = io();
 console.log("beans");
 
+var numOfRooms = 3;
 var matchScore = 0;
 var nickname = "";
 var oppStood = false;
@@ -77,6 +78,11 @@ function requestRoom(ele){
 function readyUp(){
 	socket.emit('ready');
 	document.getElementById('restart').classList.add('readied');
+	// if(!ready){
+	// 	socket.emit('ready');
+	// 	document.getElementById('restart').classList.add('readied');
+	// 	ready = true;
+	// }
 }
 
 function requestHit(){
@@ -154,10 +160,11 @@ socket.on('restart', () => {
 	oppStood = false;
 	youReady = false;
 	oppReady = false;
+	// ready = false;
 });
 
 socket.on('you ready', () => {
-	if(!oppReady){
+	if(!oppReady && !youReady){
 		let matchScoreDiv = document.getElementById('matchScoreDiv');
 		matchScoreDiv.innerHTML = '<i id="replayIcon" class="fas fa-redo-alt"></i>' + matchScoreDiv.innerHTML;
 	}
@@ -165,7 +172,7 @@ socket.on('you ready', () => {
 });
 
 socket.on('opponent ready', () => {
-	if(!youReady){
+	if(!youReady && !oppReady){
 		let matchScoreDiv = document.getElementById('matchScoreDiv');
 		matchScoreDiv.innerHTML += '<i id="replayIcon" class="fas fa-redo-alt"></i>';
 	}
@@ -213,6 +220,13 @@ socket.on('lose', opponentHand => {
 
 socket.on('join room', roomID => {
 	console.log(`You have successfully joined room ${roomID}.`);
+	console.log(document.getElementById(String(roomID)).classList);
+	document.getElementById(String(roomID)).classList.add("selected");
+	for(var i = 1; i <= numOfRooms; i++){
+		if(i != roomID){
+			document.getElementById(String(i)).classList.remove("selected");
+		}
+	}
 });
 
 socket.on('init turn', myTurn => {

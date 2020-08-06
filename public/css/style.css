@@ -1,4 +1,10 @@
 .center {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    max-width: 900px;
     margin: 0;
     position: absolute;
     top: 50%;
@@ -47,7 +53,7 @@ html, body {
     height: 100vh;
 }
 
-.btn {
+.regBtn {
     background-color: #4CAF50;
     border: none;
     outline: none;
@@ -63,12 +69,44 @@ html, body {
     border-radius: 4px;
 }
 
+.regBtn:hover {
+    background-color: #60db64;
+}
+
+.regBtn:disabled {
+    background-color: #586b59;
+}
+
+.btn {
+    box-sizing: border-box;
+    background-color: #4CAF50;
+    border: none;
+    outline: none;
+    color: white;
+    width: 176px;
+    height: 81px;
+    /* padding: 15px 10px; */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    margin: 8px;
+    transition-duration: 0.25s;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
 .btn:hover {
     background-color: #60db64;
 }
 
 .btn:disabled {
     background-color: #586b59;
+}
+
+.btn.roomBtn.selected {
+    border: 3px solid #77a5da;
+    box-sizing: border-box;
 }
 
 .half {background-image: linear-gradient(to right, #4CAF50 0%, #4CAF50 47%, #000 54%, #000 100%)}
