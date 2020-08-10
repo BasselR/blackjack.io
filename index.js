@@ -148,6 +148,8 @@ io.on('connection', socket => {
             room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
         }
         emitRoomCount();
+        let roomName = 'room ' + socket.room;
+        io.to(roomName).emit('left room');
     });
 });
 

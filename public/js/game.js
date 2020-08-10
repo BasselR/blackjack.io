@@ -301,3 +301,10 @@ socket.on('room count', bundle => {
 	console.log('rc roomID: ' + roomID);
 	document.getElementById(`room${roomID}Count`).textContent = `${roomCount} / 2`;
 });
+
+socket.on('left room', () => {
+	console.log("Someone left the room you're in.");
+	alert("Your opponent left the room! You've been brought back to the lobby.");
+	$('#third').hide();
+	$('#second').fadeIn();
+});
