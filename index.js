@@ -138,6 +138,19 @@ io.on('connection', socket => {
         );
     });
 
+    socket.on('leave game', () => {
+        console.log(socket.id + " left the game.");
+        let room = getRoom(socket.room);
+        // Remove the disconnected player from room 1 players and update population
+        if(room && room.roomPlayers){
+            room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
+        }
+        emitRoomCount();
+        let roomName = 'room ' + socket.room;
+        console.log(`roomName: ${roomName}`);
+        io.to(roomName).emit('left room');
+    });
+
     // Disconnect
     socket.on('disconnect', discMsg => {
         console.log(socket.id + " disconnected.");
@@ -149,6 +162,7 @@ io.on('connection', socket => {
         }
         emitRoomCount();
         let roomName = 'room ' + socket.room;
+        console.log(`roomName: ${roomName}`);
         io.to(roomName).emit('left room');
     });
 });

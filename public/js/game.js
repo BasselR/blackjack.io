@@ -63,6 +63,18 @@ function setActionBtns(myTurn){
 	});
 }
 
+function resetGame(){
+	document.getElementById('gameOverMsg').innerHTML = "";
+	document.getElementById('hand').innerHTML = "";
+	document.getElementById('opponentHand').innerHTML = "";
+	// reset "restart" button visibility and class
+	document.getElementById('restart').style.display = 'none';
+	document.getElementById('restart').classList.remove('readied');
+	oppStood = false;
+	youReady = false;
+	oppReady = false;
+}
+
 // function setTurnText(myTurn){
 // 	document.getElementById('turnDiv').textContent = myTurn ? "Your turn" : "Opponent's turn";
 // }
@@ -73,6 +85,10 @@ function requestRoom(ele){
 	let roomID = ele.id;
 	document.getElementById('lobbyMsg').textContent = "";
 	socket.emit('request room', roomID);
+}
+
+function leaveGame(){
+	socket.emit('leave game');
 }
 
 function readyUp(){
@@ -151,15 +167,7 @@ socket.on('room full', () => {
 socket.on('restart', () => {
 	// Reset divs to initial state
 	console.log("Receiving match restart event.");
-	document.getElementById('gameOverMsg').innerHTML = "";
-	document.getElementById('hand').innerHTML = "";
-	document.getElementById('opponentHand').innerHTML = "";
-	// reset "restart" button visibility and class
-	document.getElementById('restart').style.display = 'none';
-	document.getElementById('restart').classList.remove('readied');
-	oppStood = false;
-	youReady = false;
-	oppReady = false;
+	resetGame();
 	// ready = false;
 });
 
@@ -307,4 +315,5 @@ socket.on('left room', () => {
 	alert("Your opponent left the room! You've been brought back to the lobby.");
 	$('#third').hide();
 	$('#second').fadeIn();
+	//resetGame();
 });
