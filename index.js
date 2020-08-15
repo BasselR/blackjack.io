@@ -15,6 +15,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 var allPlayers = {};
 const numOfRooms = 3;
 
+// setInterval(() => {
+//     for(var i = 1; i <= numOfRooms; i++){
+//         let room = getRoom(i);
+//         let adaptRoom = io.sockets.adapter.rooms['room ' + String(i)];
+//         if(adaptRoom) console.log(`Adapt room ${i} size: ${adaptRoom.length}`);
+//         if(room){
+//             console.log(`Room.roomPlayers ${i} size: ${room.roomPlayers.length} / 2`);
+//             if(room.roomPlayers.length > 0){
+//                 console.log(room.roomPlayers[0].id);
+//             }
+//         }
+//     }
+// }, 4000);
+
 connectDB();
 
 io.on('connection', socket => {
@@ -35,42 +49,56 @@ io.on('connection', socket => {
         if(room && room.roomPlayers && inRoom(socket, room.roomPlayers)){
             console.log("Duplicate room-join attempt by " + socket.id);
         }
-        else if(!room || room.length < 2){
+        else if(!room || room.roomPlayers.length < 2){
             socket.join(roomName, () => {
                 room = getRoom(roomID);
                 console.log(`${socket.id} has successfully joined ${roomName}.`);
                 socket.room = roomID;
 
                 console.log('forloop rrom length: ' + Object.keys(io.sockets.adapter.rooms).length);
-                for(var i = 1; i <= Object.keys(io.sockets.adapter.rooms).length; i++){
+                // for(var i = 1; i <= Object.keys(io.sockets.adapter.rooms).length; i++){
+                for(var i = 1; i <= numOfRooms; i++){
                     let roomName = 'room ' + i;
                     console.log('forloop roomID: ' + roomID);
                     if(i != roomID){
                         socket.leave(roomName, () => {
                             console.log(`${socket.id} has successfully left ${roomName}.`);
                         });
+                        let tempRoom = getRoom(roomID);
+                        if(tempRoom && tempRoom.roomPlayers){
+                            //tempRoom.roomPlayers = tempRoom.roomPlayers.filter(player => player.id == socket.id);
+                        }
                     }
                 }
 
                 if(!room.roomPlayers){
+                    console.log("Resetting roomPlayers array...");
                     room.roomPlayers = [];
                 }
 
+                console.log("Getting here???");
                 socket.matchScore = 0;
+                console.log("beffore: " + room.roomPlayers.length)
                 room.roomPlayers.push(socket);
+                console.log("after: " + room.roomPlayers.length);
 
                 // socket.emit(`join ${roomName}`);
                 socket.emit('join room', roomID);
-                
-                emitRoomCount();
 
-                if(room.length == 2){
+                if(room.roomPlayers.length == 2){
                     // Second player has successfully joined, start this room's game
                     io.to(roomName).emit('start game');
                     // Initialize p1Bool
                     room.p1Bool = true;
+                    console.log("Starting game with: ");
+                    for(var i = 0; i < room.roomPlayers.length; i++){
+                        console.log(room.roomPlayers[i].id);
+                    }
                     initGame(roomID);
                 }
+
+                emitRoomCount();
+
             });
         }
         else{
@@ -141,29 +169,55 @@ io.on('connection', socket => {
     socket.on('leave game', () => {
         console.log(socket.id + " left the game.");
         let room = getRoom(socket.room);
-        // Remove the disconnected player from room 1 players and update population
         if(room && room.roomPlayers){
-            room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
+            let roomName = 'room ' + socket.room;
+            console.log(`leave game -- roomName: ${roomName}`);
+            console.log(`leave game -- socket id: ${socket.id}`);
+            let opp = getOpponent(socket, room.roomPlayers);
+            if(opp){
+                console.log(`OPP ID: ${opp.id}`);
+                io.to(opp.id).emit('left room', socket.room);
+            }
+            socket.leave(roomName, () => {
+                console.log("leave game event: og leaver left actual room");
+            });
+            opp.leave(roomName, () => {
+                console.log("leave game event: leaver's opponent left actual room");
+            });
+
+            // Remove the disconnected player from room 1 players and update population
+            // room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
+            room.roomPlayers = [];
         }
         emitRoomCount();
-        let roomName = 'room ' + socket.room;
-        console.log(`roomName: ${roomName}`);
-        io.to(roomName).emit('left room');
     });
 
     // Disconnect
-    socket.on('disconnect', discMsg => {
+    socket.on('disconnect', () => {
         console.log(socket.id + " disconnected.");
         delete allPlayers[socket.id];
         let room = getRoom(socket.room);
-        // Remove the disconnected player from room 1 players and update population
         if(room && room.roomPlayers){
-            room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
+            let roomName = 'room ' + socket.room;
+            console.log(`leave game -- roomName: ${roomName}`);
+            console.log(`leave game -- socket id: ${socket.id}`);
+            let opp = getOpponent(socket, room.roomPlayers);
+            if(opp){
+                console.log(`OPP ID: ${opp.id}`);
+                io.to(opp.id).emit('left room', socket.room);
+            }
+            socket.leave(roomName, () => {
+                console.log("leave game event: og leaver left actual room");
+            });
+            opp.leave(roomName, () => {
+                console.log("leave game event: leaver's opponent left actual room");
+            });
+
+            // Remove the disconnected player from room 1 players and update population
+            // room.roomPlayers = room.roomPlayers.filter(player => player.id == socket.id);
+            room.roomPlayers = [];
         }
         emitRoomCount();
-        let roomName = 'room ' + socket.room;
-        console.log(`roomName: ${roomName}`);
-        io.to(roomName).emit('left room');
     });
 });
 
@@ -418,7 +472,7 @@ function emitRoomCount(roomID = null){
         for(var i = 1; i <= numOfRooms; i++){
             let room = getRoom(i);
             if(room && room.roomPlayers){
-                io.emit('room count', { roomID: i, roomCount: room.length });
+                io.emit('room count', { roomID: i, roomCount: room.roomPlayers.length });
             }
             else{
                 io.emit('room count', { roomID: i, roomCount: 0 });
@@ -427,7 +481,7 @@ function emitRoomCount(roomID = null){
     }
     else{
         let room = getRoom(roomID);
-        io.emit('room count', { roomID, roomCount: room.length });
+        io.emit('room count', { roomID, roomCount: room.roomPlayers.length });
     }
 }
 
@@ -509,7 +563,7 @@ function updateDatabase(player, scoreIncrement){
     });
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 2500;
 
 server.listen(PORT, () => {
     console.log("Listening on port %d", PORT);

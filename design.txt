@@ -29,5 +29,5 @@ TODO:
 [/] Better room display
 [ ] Fix shifting when rematch (top text shift and bottom shift)
 [x] Kick other player out of lobby if one player leaves (or add 'waiting for other player')
-[ ] Allow player to leave (forfeit) game with back button and dialog box confirmation
-[ ] Unselect room when player gets booted back to lobby
+[x] Allow player to leave (forfeit) game with back button and dialog box confirmation
+[x] Unselect room when player gets booted back to lobby

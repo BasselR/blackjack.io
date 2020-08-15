@@ -88,7 +88,18 @@ function requestRoom(ele){
 }
 
 function leaveGame(){
-	socket.emit('leave game');
+	if(confirm("Are you sure you want to leave the game?")){
+		socket.emit('leave game');
+		$('#third').hide();
+		$('#second').fadeIn();
+		resetGame();
+		console.log(`socket room: ${socket.room}`);
+		let roomBtns = Array.from(document.getElementsByClassName("roomBtn"));
+		roomBtns.forEach(roomBtn => {
+			roomBtn.classList.remove("selected");
+		});
+		//document.getElementById(String(roomNum)).classList.remove("selected");
+	}
 }
 
 function readyUp(){
@@ -306,14 +317,15 @@ socket.on('update score', score =>{
 socket.on('room count', bundle => {
 	let roomID = bundle.roomID;
 	let roomCount = bundle.roomCount;
-	console.log('rc roomID: ' + roomID);
+	console.log(`room count for room ${roomID}: ${roomCount}`);
 	document.getElementById(`room${roomID}Count`).textContent = `${roomCount} / 2`;
 });
 
-socket.on('left room', () => {
+socket.on('left room', roomNum => {
 	console.log("Someone left the room you're in.");
 	alert("Your opponent left the room! You've been brought back to the lobby.");
 	$('#third').hide();
 	$('#second').fadeIn();
-	//resetGame();
+	document.getElementById(String(roomNum)).classList.remove("selected");
+	resetGame();
 });
