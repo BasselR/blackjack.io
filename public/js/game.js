@@ -18,6 +18,10 @@ myInput.addEventListener("keyup", function(event) {
 	  setNick();
 	}
 });
+
+// window.onbeforeunload = function(e) {
+// 	return "Are you sure you want to leave the game?";
+//   };
   
 function setNick(){
 	nickname = document.getElementById('writeNick').value;
@@ -313,12 +317,23 @@ socket.on('update score', score =>{
 	// }
 });
 
-// bundle has properties: roomID, roomCount
+// bundle has properties: roomID, roomCount, players
 socket.on('room count', bundle => {
 	let roomID = bundle.roomID;
 	let roomCount = bundle.roomCount;
+	let players = bundle.players;
 	console.log(`room count for room ${roomID}: ${roomCount}`);
 	document.getElementById(`room${roomID}Count`).textContent = `${roomCount} / 2`;
+	let tooltip = document.getElementById(`tool${roomID}`);
+	tooltip.textContent = '';
+	if(players){
+		for(var i = 0; i < players.length; i++){
+			tooltip.textContent += players[i];
+			if(i != players.length - 1){
+				tooltip.textContent += '\n';
+			}
+		}
+	}
 });
 
 socket.on('left room', roomNum => {

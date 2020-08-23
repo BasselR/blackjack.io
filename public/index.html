@@ -50,15 +50,28 @@
         </div>
         <a class="back-arrow" onclick="backLobby()"><i class="back-img fas fa-arrow-left fa-3x"></i></a>
         <div class="center initial">
-            <button class="btn roomBtn" id="1" onclick="requestRoom(this)">Join Room 1<br>
-                <p class="roomCount" id="room1Count">0 / 2</p>
-            </button>
-            <button class="btn roomBtn" id="2" onclick="requestRoom(this)">Join Room 2<br>
-                <p class="roomCount" id="room2Count">0 / 2</p>
-            </button>
-            <button class="btn roomBtn" id="3" onclick="requestRoom(this)">Join Room 3<br>
-                <p class="roomCount" id="room3Count">0 / 2</p>
-            </button>
+
+            <div class="tooltip">
+                <button class="btn roomBtn" id="1" onclick="requestRoom(this)">Join Room 1<br>
+                    <p class="roomCount" id="room1Count">0 / 2</p>
+                </button>
+                <span class="tooltiptext" id="tool1"></span>
+            </div>
+
+            <div class="tooltip">
+                <button class="btn roomBtn" id="2" onclick="requestRoom(this)">Join Room 2<br>
+                    <p class="roomCount" id="room2Count">0 / 2</p>
+                    <span class="tooltiptext" id="tool2"></span>
+                </button>
+            </div>
+            
+            <div class="tooltip">
+                <button class="btn roomBtn" id="3" onclick="requestRoom(this)">Join Room 3<br>
+                    <p class="roomCount" id="room3Count">0 / 2</p>
+                </button>
+                <span class="tooltiptext" id="tool3"></span>
+            </div>
+
         </div>
         <div class="initial" id="lobbyMsg"></div>
         <div class="center" id="viewLeaderboard"><button onclick="requestLeaderboard()" class="regBtn">View Leaderboard</button></div>

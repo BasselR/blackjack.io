@@ -15,20 +15,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 var allPlayers = {};
 const numOfRooms = 3;
 
-// setInterval(() => {
-//     for(var i = 1; i <= numOfRooms; i++){
-//         let room = getRoom(i);
-//         let adaptRoom = io.sockets.adapter.rooms['room ' + String(i)];
-//         if(adaptRoom) console.log(`Adapt room ${i} size: ${adaptRoom.length}`);
-//         if(room){
-//             console.log(`Room.roomPlayers ${i} size: ${room.roomPlayers.length} / 2`);
-//             if(room.roomPlayers.length > 0){
-//                 console.log(room.roomPlayers[0].id);
-//             }
-//         }
-//     }
-// }, 4000);
-
 connectDB();
 
 io.on('connection', socket => {
@@ -471,7 +457,11 @@ function emitRoomCount(roomID = null){
         //console.log("EMIT ROOM COUNT ROOMS LNGTH: " + Object.keys(io.sockets.adapter.rooms).length);
         for(var i = 1; i <= numOfRooms; i++){
             let room = getRoom(i);
-            if(room && room.roomPlayers){
+            if(room && room.roomPlayers && room.roomPlayers.length > 0){
+                console.log("emitting deluxe room count");
+                io.emit('room count', { roomID: i, roomCount: room.roomPlayers.length, players: room.roomPlayers });
+            }
+            else if(room && room.roomPlayers){
                 io.emit('room count', { roomID: i, roomCount: room.roomPlayers.length });
             }
             else{
@@ -563,7 +553,7 @@ function updateDatabase(player, scoreIncrement){
     });
 }
 
-const PORT = process.env.PORT || 2500;
+const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
     console.log("Listening on port %d", PORT);
