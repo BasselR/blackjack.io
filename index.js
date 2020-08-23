@@ -458,8 +458,14 @@ function emitRoomCount(roomID = null){
         for(var i = 1; i <= numOfRooms; i++){
             let room = getRoom(i);
             if(room && room.roomPlayers && room.roomPlayers.length > 0){
-                console.log("emitting deluxe room count");
-                io.emit('room count', { roomID: i, roomCount: room.roomPlayers.length, players: room.roomPlayers });
+                console.log("emitting deluxe room count", i);
+                let temp = [];
+                for(var j = 0; j < room.roomPlayers.length; j++){
+                    temp.push(room.roomPlayers[j].nick);
+                }
+                io.emit('room count', { roomID: i, roomCount: room.roomPlayers.length, players: temp });
+                //io.emit('room count', { roomID: i, roomCount: room.roomPlayers.length });
+                //io.emit('bruh', room.roomPlayers);
             }
             else if(room && room.roomPlayers){
                 io.emit('room count', { roomID: i, roomCount: room.roomPlayers.length });
@@ -553,7 +559,7 @@ function updateDatabase(player, scoreIncrement){
     });
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4999;
 
 server.listen(PORT, () => {
     console.log("Listening on port %d", PORT);

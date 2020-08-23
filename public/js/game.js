@@ -344,3 +344,7 @@ socket.on('left room', roomNum => {
 	document.getElementById(String(roomNum)).classList.remove("selected");
 	resetGame();
 });
+
+socket.on('bruh', players => {
+	if(players) console.log("players is defined! :)");
+});
