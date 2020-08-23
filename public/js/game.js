@@ -330,7 +330,7 @@ socket.on('room count', bundle => {
 		for(var i = 0; i < players.length; i++){
 			tooltip.textContent += players[i];
 			if(i != players.length - 1){
-				tooltip.textContent += '\n';
+				tooltip.textContent += '\r\n';
 			}
 		}
 	}

@@ -268,6 +268,8 @@ html, body {
 }
   
 .tooltip .tooltiptext {
+    white-space: pre;
+
     visibility: hidden;
     width: 120px;
     background-color: black;
