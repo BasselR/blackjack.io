@@ -269,6 +269,7 @@ html, body {
   
 .tooltip .tooltiptext {
     white-space: pre;
+    font-family: 'Questrial', sans-serif;
 
     visibility: hidden;
     width: 120px;

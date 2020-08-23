@@ -322,9 +322,18 @@ socket.on('room count', bundle => {
 	let roomID = bundle.roomID;
 	let roomCount = bundle.roomCount;
 	let players = bundle.players;
+	
 	console.log(`room count for room ${roomID}: ${roomCount}`);
 	document.getElementById(`room${roomID}Count`).textContent = `${roomCount} / 2`;
+
 	let tooltip = document.getElementById(`tool${roomID}`);
+	if(roomCount == 0){
+		tooltip.style.display = "none";
+	}
+	else{
+		tooltip.style.display = "inline";
+	}
+
 	tooltip.textContent = '';
 	if(players){
 		for(var i = 0; i < players.length; i++){
