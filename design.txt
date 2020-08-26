@@ -26,7 +26,7 @@ TODO:
 [x] Fix multiple rematch bug
 [ ] Clean up unnecessary code, minimize event emissions
 [ ] Add chat window for chat messages and event log
-[/] Better room display
+[x] Better room display
 [ ] Fix shifting when rematch (top text shift and bottom shift)
 [x] Kick other player out of lobby if one player leaves (or add 'waiting for other player')
 [x] Allow player to leave (forfeit) game with back button and dialog box confirmation
