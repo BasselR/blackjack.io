@@ -18,37 +18,29 @@ const numOfRooms = 3;
 connectDB();
 
 io.on('connection', socket => {
-    console.log(socket.id + " joined.");
     allPlayers[socket.id] = socket;
 
     emitRoomCount();
 
     // Attempt to join room 1 (if there is space)
     socket.on('set nickname', nickname => {
-        console.log(`Nickname: ${socket.id} -> ${nickname}`);
         socket.nick = nickname;
     });
     socket.on('request room', roomID => {
-        console.log(`${socket.id} requesting to join room ${roomID}.`);
         let roomName = 'room ' + roomID;
         let room = getRoom(roomID);
         if(room && room.roomPlayers && inRoom(socket, room.roomPlayers)){
-            console.log("Duplicate room-join attempt by " + socket.id);
         }
         else if(!room || room.roomPlayers.length < 2){
             socket.join(roomName, () => {
                 room = getRoom(roomID);
-                console.log(`${socket.id} has successfully joined ${roomName}.`);
                 socket.room = roomID;
 
-                console.log('forloop rrom length: ' + Object.keys(io.sockets.adapter.rooms).length);
                 // for(var i = 1; i <= Object.keys(io.sockets.adapter.rooms).length; i++){
                 for(var i = 1; i <= numOfRooms; i++){
                     let roomName = 'room ' + i;
-                    console.log('forloop roomID: ' + roomID);
                     if(i != roomID){
                         socket.leave(roomName, () => {
-                            console.log(`${socket.id} has successfully left ${roomName}.`);
                         });
                         let tempRoom = getRoom(roomID);
                         if(tempRoom && tempRoom.roomPlayers){
@@ -58,15 +50,11 @@ io.on('connection', socket => {
                 }
 
                 if(!room.roomPlayers){
-                    console.log("Resetting roomPlayers array...");
                     room.roomPlayers = [];
                 }
 
-                console.log("Getting here???");
                 socket.matchScore = 0;
-                console.log("beffore: " + room.roomPlayers.length)
                 room.roomPlayers.push(socket);
-                console.log("after: " + room.roomPlayers.length);
 
                 // socket.emit(`join ${roomName}`);
                 socket.emit('join room', roomID);
@@ -76,9 +64,7 @@ io.on('connection', socket => {
                     io.to(roomName).emit('start game');
                     // Initialize p1Bool
                     room.p1Bool = true;
-                    console.log("Starting game with: ");
                     for(var i = 0; i < room.roomPlayers.length; i++){
-                        console.log(room.roomPlayers[i].id);
                     }
                     initGame(roomID);
                 }
@@ -88,7 +74,6 @@ io.on('connection', socket => {
             });
         }
         else{
-            console.log(socket.id + ` cannot join ${roomName} (full).`);
             socket.emit('room full');
         }
     });
@@ -103,7 +88,6 @@ io.on('connection', socket => {
             updateTurn(socket.room);
         }
         else{
-            console.log(socket.nick + " tried to hit but it's not their turn.");
         }
         checkGameOver(socket.room);
     });
@@ -118,7 +102,6 @@ io.on('connection', socket => {
             updateTurn(socket.room);
         }
         else{
-            console.log(socket.nick + " tried to stand but it's not their turn.");
         }
         checkGameOver(socket.room);
     });
@@ -126,12 +109,10 @@ io.on('connection', socket => {
     socket.on('ready', () => {
         let roomName = 'room ' + socket.room;
         let room = io.sockets.adapter.rooms[roomName];
-        console.log(socket.id + " is readying up!");
         socket.ready = true;
         io.to(socket.id).emit('you ready');
         io.to(getOpponent(socket, room.roomPlayers).id).emit('opponent ready');
         if(checkBothReady(room.roomPlayers)){
-            console.log("Both players are ready. Game restarting...");
             io.to(roomName).emit('restart');
             // sending room ID so initGame() can access the room object
             initGame(socket.room);
@@ -142,10 +123,8 @@ io.on('connection', socket => {
         Score.find().sort({score: -1}).limit(5).exec( 
             function(err, scores) {
                 if(err){
-                    console.log("Error while retrieving leaderboard: " + err);
                 }
                 else{
-                    console.log("Successfully retrieved leaderboard!");
                     socket.emit('leaderboard', scores);
                 }
             }
@@ -153,22 +132,16 @@ io.on('connection', socket => {
     });
 
     socket.on('leave game', () => {
-        console.log(socket.id + " left the game.");
         let room = getRoom(socket.room);
         if(room && room.roomPlayers){
             let roomName = 'room ' + socket.room;
-            console.log(`leave game -- roomName: ${roomName}`);
-            console.log(`leave game -- socket id: ${socket.id}`);
             let opp = getOpponent(socket, room.roomPlayers);
             if(opp){
-                console.log(`OPP ID: ${opp.id}`);
                 io.to(opp.id).emit('left room', socket.room);
             }
             socket.leave(roomName, () => {
-                console.log("leave game event: og leaver left actual room");
             });
             opp.leave(roomName, () => {
-                console.log("leave game event: leaver's opponent left actual room");
             });
 
             // Remove the disconnected player from room 1 players and update population
@@ -180,23 +153,17 @@ io.on('connection', socket => {
 
     // Disconnect
     socket.on('disconnect', () => {
-        console.log(socket.id + " disconnected.");
         delete allPlayers[socket.id];
         let room = getRoom(socket.room);
         if(room && room.roomPlayers){
             let roomName = 'room ' + socket.room;
-            console.log(`leave game -- roomName: ${roomName}`);
-            console.log(`leave game -- socket id: ${socket.id}`);
             let opp = getOpponent(socket, room.roomPlayers);
             if(opp){
-                console.log(`OPP ID: ${opp.id}`);
                 io.to(opp.id).emit('left room', socket.room);
             }
             socket.leave(roomName, () => {
-                console.log("leave game event: og leaver left actual room");
             });
             opp.leave(roomName, () => {
-                console.log("leave game event: leaver's opponent left actual room");
             });
 
             // Remove the disconnected player from room 1 players and update population
@@ -232,7 +199,6 @@ function checkBothReady(socketList){
 
 // Takes in an array of players (sockets)
 function initGame(roomID){
-    console.log(`Initializing game for room ${roomID}...`);
     let roomName = 'room ' + roomID;
     let room = io.sockets.adapter.rooms[roomName];
     room.gameDeck = new Deck();
@@ -267,7 +233,6 @@ function initGame(roomID){
 }
 
 function getOpponent(player, socketList){
-    console.log("get opponent socketList length: " + socketList.length);
     for(var i = 0; i < socketList.length; i++){
         if(socketList[i].p1 === !player.p1){
             return socketList[i];
@@ -316,21 +281,17 @@ function checkGameOver(roomID){
     let roomName = 'room ' + roomID;
     let room = io.sockets.adapter.rooms[roomName];
     let socketList = room.roomPlayers;
-    console.log("checking game over, last turn: " + room.lastTurn);
     if(room.lastTurn){
         // Both players bust
         if(allBust(socketList)){
-            console.log("Game over - case 1.");
             room.gameOver = true;
             emitTie(roomID);
         }
         // One player busts, other player gets last turn and doesn't bust
         else{
-            console.log("Game over - case 2.");
             let winner = socketList.filter(player => !player.busted)[0];
             room.gameOver = true;
             emitWinLoss(winner, roomID);
-            console.log("winner id: " + winner.id);
         }
     }
     // If someone busts when the opponent had already been standing
@@ -338,8 +299,6 @@ function checkGameOver(roomID){
         if(anyStood(socketList)){
             room.gameOver = true;
             let winner = socketList.filter(player => !player.busted)[0];
-            console.log("Game over - case 3.");
-            console.log("winner id: " + winner.id);
             emitWinLoss(winner, roomID);
         }
         // Someone busts, activating final turn
@@ -351,7 +310,6 @@ function checkGameOver(roomID){
         let winnerResult = determineWinner(socketList);
         // Both players stand, score tied
         if(winnerResult == "tie"){
-            console.log("Game over - case 4.");
             room.gameOver = true;
             emitTie(roomID);
         }
@@ -359,8 +317,6 @@ function checkGameOver(roomID){
         else if(typeof(winnerResult) == 'number'){
             let winnerIndex = winnerResult;
             let winner = socketList[winnerIndex];
-            console.log("Game over - case 5.");
-            console.log("winner id: " + winner.id);
             room.gameOver = true;
             emitWinLoss(winner, roomID);
         }
@@ -371,7 +327,6 @@ function checkGameOver(roomID){
 function determineWinner(socketList){
     // Handle empty socketList / room
     if(socketList.length == 0){
-        console.log("Cannot determine winner of empty socketList!");
         return;
     }
     // Handle tie at showdown
@@ -392,13 +347,11 @@ function determineWinner(socketList){
             currentWinner = i;
         }
     }
-    console.log("Winner: " + socketList[currentWinner].id);
     // Returns winner's index (with respect to socketList array)
     return currentWinner;
 }
 
 function emitTie(roomID){
-    console.log("emitTie event fired");
     let room = getRoom(roomID);
     let socketList = room.roomPlayers;
     // these dont actually represent 'p1' / who goes first, they're just placeholder names
@@ -414,7 +367,6 @@ function emitTie(roomID){
 }
 
 function emitWinLoss(winner, roomID){
-    console.log("emitWinLoss event fired");
     let room = getRoom(roomID);
     let socketList = room.roomPlayers;
     winner.matchScore++;
@@ -426,7 +378,6 @@ function emitWinLoss(winner, roomID){
 }
 
 function emitMatchScore(roomID){
-    console.log("emitMatchScore event fired");
     let room = getRoom(roomID);
     let socketList = room.roomPlayers;
     // these dont actually represent 'p1' / who goes first, they're just placeholder names
@@ -439,8 +390,6 @@ function emitMatchScore(roomID){
     let p1S = `Your score: ${p1.score} &nbsp;&nbsp; | &nbsp;&nbsp; Opponent's score: ${p2.score}`;
     let p2S = `Your score: ${p2.score} &nbsp;&nbsp; | &nbsp;&nbsp; Opponent's score: ${p1.score}`;
     
-    console.log(`room.gameOver: ${room.gameOver}`);
-    console.log(`p1.id: ${p1.id}`);
     // sending client the opponent's hand score
     if(room.gameOver){
         io.to(p1.id).emit('game over', {matchScore: p1MS, scoreText: p1S} );
@@ -454,11 +403,10 @@ function emitMatchScore(roomID){
 
 function emitRoomCount(roomID = null){
     if(!roomID){ 
-        //console.log("EMIT ROOM COUNT ROOMS LNGTH: " + Object.keys(io.sockets.adapter.rooms).length);
+    
         for(var i = 1; i <= numOfRooms; i++){
             let room = getRoom(i);
             if(room && room.roomPlayers && room.roomPlayers.length > 0){
-                console.log("emitting deluxe room count", i);
                 let temp = [];
                 for(var j = 0; j < room.roomPlayers.length; j++){
                     temp.push(room.roomPlayers[j].nick);
@@ -486,7 +434,6 @@ function hit(player, numOfCards = 1){
     let roomName = 'room ' + player.room;
     let room = io.sockets.adapter.rooms[roomName];
     for(var i = 0; i < numOfCards; i++){
-        console.log("Card hit...");
         let newCard = room.gameDeck.pop();
         // with updatePoints, player.hand.push(newCard) might be unneeded (if we just update points instead of keeping track of a hand)
         player.hand.push(newCard);
@@ -500,14 +447,11 @@ function hit(player, numOfCards = 1){
 function stand(player){
     let roomName = 'room ' + player.room;
     player.stood = true;
-    console.log(player.id + " stands.")
     player.emit('stand');
     player.to(roomName).emit('opponent stand');
 }
 
 function updateScore(player, newCard){
-    console.log("Updating score...");
-    console.log("new card: " + newCard.Value);
     // If player drew an ace
     if(newCard.Value === "A"){
         player.bigAces++;
@@ -515,7 +459,6 @@ function updateScore(player, newCard){
     // If a player hits 21 (blackjack)
     if(player.score + newCard.Points == 21){
         //player.stood = true;
-        console.log(player.id + " hit 21 (blackjack)!");
     }
     // If player is about to bust
     else if(player.score + newCard.Points > 21){
@@ -525,7 +468,6 @@ function updateScore(player, newCard){
         }
         else{
             // Game over - player busted
-            console.log(player.id + " busted.");
             player.busted = true;
             player.emit('busted');
         }
@@ -536,7 +478,7 @@ function updateScore(player, newCard){
 
 // Returns whether or not a player is in a 'room' (list of sockets)
 function inRoom(player, socketList){
-    //console.log("inRoom --- socketList.length: " + socketList.length);
+
     for(var i = 0; i < socketList.length; i++){
         if(socketList[i].id == player.id){
             return true;
@@ -551,10 +493,8 @@ function updateDatabase(player, scoreIncrement){
 
     Score.findOneAndUpdate(query, {$inc : {'score' : scoreIncrement}}, options, function(err, results){
         if(err){
-            console.log("Error during findOneAndUpdate: " + err);
         }
         else{
-            console.log("findOneAndUpdate successful: " + results);
         }
     });
 }
@@ -562,5 +502,4 @@ function updateDatabase(player, scoreIncrement){
 const PORT = process.env.PORT || 4999;
 
 server.listen(PORT, () => {
-    console.log("Listening on port %d", PORT);
 });
